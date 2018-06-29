@@ -5,6 +5,6 @@ from django.conf import settings
 
 urlpatterns = [
     url(r'^index', views.index),  # 示例
-    url(r'^adbdevices', views.adb_devices),
-    url(r'^testone', views.testone)
+    url(r'^devicelist', views.get_devices),  # 获取设备
+    #url(r'^testone', views.testone)
 ]
