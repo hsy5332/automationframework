@@ -16,6 +16,7 @@ class RunAppAutomation:
         appium_port, appium_bootstrap_port = RunAppAutomation.create_appium_port(self, device_count)
         return device_count, devices_list, appium_port, appium_bootstrap_port
 
+    # 创建 appium 端口号
     def create_appium_port(self, device_count):
         count = 0;
         appium_port = []  # 存放生成appium的端口号
@@ -29,6 +30,7 @@ class RunAppAutomation:
                 count += 1;
         return appium_port, appium_bootstrap_port
 
+    # 启动 appium
     def launch_appium(self):
         device_count, devices_list, appium_port, appium_bootstrap_port = RunAppAutomation().get_device()
         appium_port_count = 0;
