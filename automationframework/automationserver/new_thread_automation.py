@@ -13,20 +13,18 @@ class NewThreadAutomation(threading.Thread):
 
     def run(self):
         if self.device_id == 'run_appium' and self.appium_port == 'run_appium':
-            # print(self.thread_count)
-            print(self.device_id)
-            print(device_count, appium_port_list, appium_bootstrap_port_list)
-
             transmit_appium_port_list = appium_port_list  # 把appium_port_list 赋值给 transmit_appium_port_list
             transmit_appium_port_list.pop(0)  # 把原增加的用来判断是否启动appium 字符串删除
-            print(device_count, transmit_appium_port_list, appium_bootstrap_port_list)
             run_app_automation.RunAppAutomation().launch_appium(device_count, transmit_appium_port_list,
                                                                 appium_bootstrap_port_list)  # 启动appium
         else:
-            # print(self.device_id)
+            print("正在运行自动化程序,请稍后")
             time.sleep(5)
-            print("黄顺耀")
-            run_app_automation.RunAppAutomation().stop_appium(self.appium_port)
+            try:
+                run_app_automation.RunAppAutomation().stop_appium(self.appium_port)
+                print("正在关闭appium端口号：%s 的服务进程。" % self.appium_port)
+            except:
+                print("关闭Appium 服务失败,请手动关闭进程。Appium 服务端口号为: %s" % self.appium_port)
 
 
 # 运行自动化程序
@@ -37,15 +35,19 @@ device_list.insert(0, 'run_appium')  # 在列表的始端增加一个字符串 �
 appium_port_list.insert(0, 'run_appium')
 
 # 创建自动化多设备运行线程
-while thread_count <= device_count:
-    run_thread = NewThreadAutomation(thread_count, device_list[thread_count], appium_port_list[thread_count])
-    thread_list.append(run_thread)
-    thread_count += 1;
-for u, i in enumerate(thread_list):
-    i.start()
-    if u == 0:  # 判断是否在启动appium，若在启动appium 就等待一会,让appium启动起来在运行自动化程序
-        print("正在启动appium服务,请稍等...")
-        time.sleep(10)
-for y in thread_list:
-    y.join()
-print("吕冬梅")
+if device_count > 0:
+    while thread_count <= device_count:
+        run_thread = NewThreadAutomation(thread_count, device_list[thread_count], appium_port_list[thread_count])
+        thread_list.append(run_thread)
+        thread_count += 1;
+    for u, i in enumerate(thread_list):
+        i.start()
+        if u == 0:  # 判断是否在启动appium，若在启动appium 就等待一会,让appium启动起来在运行自动化程序
+            print("正在启动appium服务,请稍等...")
+            time.sleep(10)
+    for y in thread_list:
+        y.join()
+
+    print("完成所有自动化程序")
+else:
+    print("未获取到任何设备,不执行自动化程序")

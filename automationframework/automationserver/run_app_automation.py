@@ -66,14 +66,11 @@ class RunAppAutomation:
     # 关闭appium 服务
     def stop_appium(self, appium_port):
         # 获取所有的appium 服务对应的pid
-        print("获取本次的Port是: %s" % appium_port)
         for get_appium_pid in os.popen("netstat -ano | findstr %s" % appium_port):
 
             if 'LISTENING' in get_appium_pid and str(appium_port) in get_appium_pid:
                 appium_pid = get_appium_pid.replace(" ", "").strip().split('LISTENING')[1]
-
-        print(appium_pid)
-        return appium_pid
+        os.popen('taskkill -pid %s -t -f ' % appium_pid)  # 关闭appium服务
 
 
 if __name__ == "__main__":
