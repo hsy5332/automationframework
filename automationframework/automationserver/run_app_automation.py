@@ -19,13 +19,26 @@ class RunAppAutomation:
         appium_port, appium_bootstrap_port = RunAppAutomation.create_appium_port(self, device_count)
         return device_count, devices_list, appium_port, appium_bootstrap_port
 
-    # 检查端口号是否存在
-    def check_appium_port(self, appium_port, appium_bootstrap_port):
-        if os.popen("lsof -i tcp:%s" % appium_port).read() == '' and os.popen(
-                        "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
-            return True
+    def check_system(self):
+        if os.name == 'nt':
+            return True # 返回true 是Windows
         else:
             return False
+
+    # 检查端口号是否存在
+    def check_appium_port(self, appium_port, appium_bootstrap_port):
+        if os.name == 'nt':
+            if os.popen("netstat -ano | findstr %s" % appium_port).read() == '' and os.popen(
+                            "lnetstat -ano | findstr %s" % appium_bootstrap_port).read() == '':
+                return True
+            else:
+                return False
+        else:
+            if os.popen("lsof -i tcp:%s" % appium_port).read() == '' and os.popen(
+                            "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
+                return True
+            else:
+                return False
 
     # 创建 appium 端口号
     def create_appium_port(self, device_count):
