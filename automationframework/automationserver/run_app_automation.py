@@ -6,6 +6,8 @@ import threading
 import subprocess
 import time
 import getpass
+from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
+# from automationserver import data_read  # 启动django服务需要开启
 
 
 class RunAppAutomation:
@@ -21,7 +23,7 @@ class RunAppAutomation:
 
     def check_system(self):
         if os.name == 'nt':
-            return True # 返回true 是Windows
+            return True  # 返回true 是Windows
         else:
             return False
 
@@ -29,13 +31,13 @@ class RunAppAutomation:
     def check_appium_port(self, appium_port, appium_bootstrap_port):
         if os.name == 'nt':
             if os.popen("netstat -ano | findstr %s" % appium_port).read() == '' and os.popen(
-                            "lnetstat -ano | findstr %s" % appium_bootstrap_port).read() == '':
+                    "netstat -ano | findstr %s" % appium_bootstrap_port).read() == '':
                 return True
             else:
                 return False
         else:
             if os.popen("lsof -i tcp:%s" % appium_port).read() == '' and os.popen(
-                            "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
+                    "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
                 return True
             else:
                 return False
@@ -64,7 +66,7 @@ class RunAppAutomation:
 
         def run(self):
             appium_cmd = subprocess.Popen(
-                'appium -p %s -bp %s >appiumlog/log_%s_%s_%s' % (
+                'appium -p %s -bp %s >static/appiumlog/log_%s_%s_%s' % (
                     self.appium_port, self.appium_bootstrap_port, self.appium_port, self.appium_bootstrap_port,
                     int(time.time())),
                 shell=True)
@@ -88,11 +90,9 @@ class RunAppAutomation:
     # 关闭appium 服务
     def stop_appium(self, appium_port):
         # 获取所有的appium 服务对应的pid
-        appium_pid_list = []  # 存放进程pid 的列表
         if os.name == 'nt':
             appium_pid_list = []
             for get_appium_pid in os.popen("netstat -ano | findstr %s" % appium_port):
-
                 if 'LISTENING' in get_appium_pid and str(appium_port) in get_appium_pid:
                     appium_pid_list.append(
                         get_appium_pid.replace(" ", "").strip().split('LISTENING')[1])  # Windows 获取pid
@@ -108,6 +108,20 @@ class RunAppAutomation:
             print(appium_pid_list)
             for kill_pid in appium_pid_list:
                 os.popen('kill %s' % kill_pid)  # 关闭appium服务
+
+    # 执行app自动化用例
+    def run_app_automation_case(self, file_name, configure_sheel_name,
+                                run_sheel_name):  # filename 用例名称 configure_sheel_name 配置表格 run_sheel_name 执行用例表格
+        print(file_name, configure_sheel_name, run_sheel_name)
+        # 在这里调用data_read read_case_file方法去遍历表格
+        configure_case_nows, configure_case_column, configure_sheel = data_read.DataRead().read_case_file(file_name,
+                                                                                                          configure_sheel_name)
+        print('读取配置表')
+        print(configure_case_nows, configure_case_column, configure_sheel)
+        run_case_nows, run_case_column, run_sheel = data_read.DataRead().read_case_file(file_name, run_sheel_name)
+        print('读取运行表')
+        print(run_case_nows, run_case_column, run_sheel)
+        print("调取app自动化用例成功")
 
 
 if __name__ == "__main__":
