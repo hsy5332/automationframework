@@ -1,0 +1,6 @@
+[Appium] Welcome to Appium v1.8.1
+[Appium] Non-default server args:
+[Appium]   port: 4700
+[Appium]   bootstrapPort: 7061
+[Appium] Appium REST http interface listener started on 0.0.0.0:4700
+[Appium] Received SIGINT - shutting down

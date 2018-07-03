@@ -5,10 +5,10 @@ import random
 import threading
 import subprocess
 import time
+import getpass
 
 
 class RunAppAutomation:
-
     # 获取本地设备信息
     def get_device(self):
         devices_list = []  # 存放设备列表
@@ -19,6 +19,14 @@ class RunAppAutomation:
         appium_port, appium_bootstrap_port = RunAppAutomation.create_appium_port(self, device_count)
         return device_count, devices_list, appium_port, appium_bootstrap_port
 
+    # 检查端口号是否存在
+    def check_appium_port(self, appium_port, appium_bootstrap_port):
+        if os.popen("lsof -i tcp:%s" % appium_port).read() == '' and os.popen(
+                        "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
+            return True
+        else:
+            return False
+
     # 创建 appium 端口号
     def create_appium_port(self, device_count):
         count = 0;
@@ -27,7 +35,8 @@ class RunAppAutomation:
         while count < device_count:
             random_port_number = random.randrange(4000, 10000, 2)
             random_bootstrap_number = random.randrange(4001, 9999, 2)
-            if random_port_number not in appium_port and random_bootstrap_number not in appium_bootstrap_port:
+            check_appium_port_status = RunAppAutomation().check_appium_port(random_port_number, random_bootstrap_number)
+            if random_port_number not in appium_port and random_bootstrap_number not in appium_bootstrap_port and check_appium_port_status == True:
                 appium_port.append(random_port_number)  # 获取1000 到 100000之间的偶数
                 appium_bootstrap_port.append(random_bootstrap_number)  # 获取1001 到 9999之间的奇数
                 count += 1;
@@ -66,11 +75,26 @@ class RunAppAutomation:
     # 关闭appium 服务
     def stop_appium(self, appium_port):
         # 获取所有的appium 服务对应的pid
-        for get_appium_pid in os.popen("netstat -ano | findstr %s" % appium_port):
+        appium_pid_list = []  # 存放进程pid 的列表
+        if os.name == 'nt':
+            appium_pid_list = []
+            for get_appium_pid in os.popen("netstat -ano | findstr %s" % appium_port):
 
-            if 'LISTENING' in get_appium_pid and str(appium_port) in get_appium_pid:
-                appium_pid = get_appium_pid.replace(" ", "").strip().split('LISTENING')[1]
-        os.popen('taskkill -pid %s -t -f ' % appium_pid)  # 关闭appium服务
+                if 'LISTENING' in get_appium_pid and str(appium_port) in get_appium_pid:
+                    appium_pid_list.append(
+                        get_appium_pid.replace(" ", "").strip().split('LISTENING')[1])  # Windows 获取pid
+            for kill_pid in appium_pid_list:
+                os.popen('taskkill -pid %s -t -f ' % kill_pid)  # 关闭appium服务
+        else:
+            appium_pid_list = []
+            for get_appium_pid in os.popen("lsof -i tcp:%s" % appium_port):
+                if 'LISTEN' in get_appium_pid and str(appium_port) in get_appium_pid:
+                    appium_pid_list.append(
+                        get_appium_pid.replace(' ', '').strip().split('node')[1].split(getpass.getuser())[
+                            0])  # linux Unix 获取pid getpass.getuser() 获取当前系统登录的用户名
+            print(appium_pid_list)
+            for kill_pid in appium_pid_list:
+                os.popen('kill %s' % kill_pid)  # 关闭appium服务
 
 
 if __name__ == "__main__":
