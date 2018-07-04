@@ -8,6 +8,7 @@ import time
 import getpass
 # from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
 from automationserver import data_read  # 启动django服务需要开启
+from appium import webdriver
 
 
 class RunAppAutomation:
@@ -21,23 +22,32 @@ class RunAppAutomation:
         appium_port, appium_bootstrap_port = RunAppAutomation.create_appium_port(self, device_count)
         return device_count, devices_list, appium_port, appium_bootstrap_port
 
+    # 检测当前pc系统 windows 还是非windows
     def check_system(self):
         if os.name == 'nt':
             return True  # 返回true 是Windows
         else:
             return False
 
+    # 获取手机安卓系统版本
+    def get_device_android_version(self, device_id):
+        try:
+            android_version = os.popen('adb -s %s shell getprop ro.build.version.release' % device_id).read().strip()
+            return android_version
+        except:
+            return '4.4.2'
+
     # 检查端口号是否存在
     def check_appium_port(self, appium_port, appium_bootstrap_port):
         if os.name == 'nt':
             if os.popen("netstat -ano | findstr %s" % appium_port).read() == '' and os.popen(
-                            "netstat -ano | findstr %s" % appium_bootstrap_port).read() == '':
+                    "netstat -ano | findstr %s" % appium_bootstrap_port).read() == '':
                 return True
             else:
                 return False
         else:
             if os.popen("lsof -i tcp:%s" % appium_port).read() == '' and os.popen(
-                            "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
+                    "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
                 return True
             else:
                 return False
@@ -109,19 +119,46 @@ class RunAppAutomation:
             for kill_pid in appium_pid_list:
                 os.popen('kill %s' % kill_pid)  # 关闭appium服务
 
+    # 读取用例操作类型
+    def read_case_operate_type(self, file_name, run_sheel_name):
+        run_case_nows, run_case_column, run_sheel = data_read.DataRead().read_case_file(file_name, run_sheel_name)
+        print("正在读取测试用例,请稍后...")
+        run_case_now_count = 1;  # 遍历用例表格计数器 从1 开始 第一行不算
+        while run_case_now_count < run_case_nows:
+            case_id = int(run_sheel.row_values(run_case_now_count)[0])  # 用例编号
+            operate_type = run_sheel.row_values(run_case_now_count)[1]  # 操作类型
+            element_attribute = run_sheel.row_values(run_case_now_count)[2]  # 元素属性
+            parameter = run_sheel.row_values(run_case_now_count)[3]  # 参数
+            if run_sheel.row_values(run_case_now_count)[5] == "":
+                wait_time = 0;
+            else:
+                wait_time = int(run_sheel.row_values(run_case_now_count)[5])  # 等待时间
+            case_describe = run_sheel.row_values(run_case_now_count)[6]  # 步骤描述
+            case_execute = run_sheel.row_values(run_case_now_count)[7]  # 用例执行状态
+            print(case_id, operate_type, element_attribute, parameter, wait_time, case_describe, case_execute)
+            run_case_now_count += 1;  # 循环计数器 +1
+
     # 执行app自动化用例
-    def run_app_automation_case(self, file_name, configure_sheel_name,
-                                run_sheel_name):  # filename 用例名称 configure_sheel_name 配置表格 run_sheel_name 执行用例表格
-        print(file_name, configure_sheel_name, run_sheel_name)
-        # 在这里调用data_read read_case_file方法去遍历表格
+    def run_app_automation_case(self, file_name, configure_sheel_name, run_sheel_name, device_id, appium_port):
+        # filename 用例名称 configure_sheel_name 配置表格 run_sheel_name 执行用例表格 device_id 设备id
         configure_case_nows, configure_case_column, configure_sheel = data_read.DataRead().read_case_file(file_name,
                                                                                                           configure_sheel_name)
-        print('读取配置表')
-        print(configure_case_nows, configure_case_column, configure_sheel)
-        run_case_nows, run_case_column, run_sheel = data_read.DataRead().read_case_file(file_name, run_sheel_name)
-        print('读取运行表')
-        print(run_case_nows, run_case_column, run_sheel)
-        print("调取app自动化用例成功")
+        for i in range(1, configure_case_nows):
+            app_package = configure_sheel.row_values(i)[0]  # 获取app 包名
+            app_activity = configure_sheel.row_values(i)[1]  # 获取启动的activity
+            app_path = configure_sheel.row_values(i)[2]  # 获取apk的路径
+
+        platform_version = RunAppAutomation().get_device_android_version(device_id)  # 获取当前设备的Android系统版本
+        connect_appium_device_config = RunAppAutomation().original_device_info(device_id, 'Android', platform_version,
+                                                                               app_package, app_activity,
+                                                                               app_path)  # 初始化appium 连接设备信息
+        try:
+            driver = webdriver.Remote('http://localhost:%s/wd/hub' % appium_port,
+                                      connect_appium_device_config)  # 连接appium
+            driver.implicitly_wait(10)  # 在未获取到元素时 等待 10 秒
+            RunAppAutomation().read_case_operate_type(file_name, run_sheel_name)  # 读取用例操作类型 并执行
+        except:
+            print('连接Appium失败,连接设备号为: %s 端口号为: %s ' % (device_id, appium_port))
 
     # 设备连接Appium 配置文件
     def original_device_info(self, udid, platform_name, platform_version, app_package, app_activity, app_path):

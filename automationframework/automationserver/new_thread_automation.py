@@ -1,7 +1,7 @@
 # coding : utf-8
 import threading
 import time
-#from automationframework.automationserver import run_app_automation, data_read  # 单独此文件需要开启 windows
+# from automationframework.automationserver import run_app_automation, data_read  # 单独此文件需要开启 windows
 from automationserver import run_app_automation, data_read  # 启动django服务需要开启
 
 
@@ -16,7 +16,7 @@ class NewThreadAutomation(threading.Thread):
         self.appium_bootstrap_port_list = appium_bootstrap_port_list  # 全部 appium_bootstrap 端口号
         self.device_count = device_count  # 获取的设备数
         self.file_name = file_name  # 测试用例文件名
-        self.run_case_type = run_case_type  #  run_case_type = app
+        self.run_case_type = run_case_type  # run_case_type = app
 
     def run(self):
 
@@ -27,11 +27,12 @@ class NewThreadAutomation(threading.Thread):
                                                                 self.appium_bootstrap_port_list)  # 启动appium
         else:
             print("正在运行自动化程序,请稍后")
-            time.sleep(5)
+            time.sleep(self.thread_count + 2)
             excel_sheel_form = data_read.DataRead().gain_shell_name(self.run_case_type)
             # 执行App自动化
             run_app_automation.RunAppAutomation().run_app_automation_case(self.file_name, excel_sheel_form[0],
-                                                                          excel_sheel_form[1])
+                                                                          excel_sheel_form[1], self.device_id,
+                                                                          self.appium_port)
             try:
                 run_app_automation.RunAppAutomation().stop_appium(self.appium_port)
                 print("正在关闭appium端口号：%s 的服务进程。" % self.appium_port)
@@ -46,7 +47,6 @@ def run_automation_procedure(file_name, run_case_type):
     device_count, device_list, appium_port_list, appium_bootstrap_port_list = run_app_automation.RunAppAutomation().get_device()  # 获取设备数、设备名称、appium、appium bootstrap端口号
     device_list.insert(0, 'run_appium')  # 在列表的始端增加一个字符串 用来判断是否启动appium
     appium_port_list.insert(0, 'run_appium')
-
     # 创建自动化多设备运行线程
     if device_count > 0:
         while thread_count <= device_count:
