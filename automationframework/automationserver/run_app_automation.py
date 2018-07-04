@@ -6,8 +6,8 @@ import threading
 import subprocess
 import time
 import getpass
-from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
-# from automationserver import data_read  # 启动django服务需要开启
+# from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
+from automationserver import data_read  # 启动django服务需要开启
 
 
 class RunAppAutomation:
@@ -31,13 +31,13 @@ class RunAppAutomation:
     def check_appium_port(self, appium_port, appium_bootstrap_port):
         if os.name == 'nt':
             if os.popen("netstat -ano | findstr %s" % appium_port).read() == '' and os.popen(
-                    "netstat -ano | findstr %s" % appium_bootstrap_port).read() == '':
+                            "netstat -ano | findstr %s" % appium_bootstrap_port).read() == '':
                 return True
             else:
                 return False
         else:
             if os.popen("lsof -i tcp:%s" % appium_port).read() == '' and os.popen(
-                    "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
+                            "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
                 return True
             else:
                 return False
@@ -123,10 +123,27 @@ class RunAppAutomation:
         print(run_case_nows, run_case_column, run_sheel)
         print("调取app自动化用例成功")
 
+    # 设备连接Appium 配置文件
+    def original_device_info(self, udid, platform_name, platform_version, app_package, app_activity, app_path):
+        device_info = {
+            'deviceName': udid,
+            'platformName': platform_name,
+            'platformVersion': platform_version,
+            'appPackage': app_package,
+            'appActivity': app_activity,
+            'udid': udid,
+            'unicodeKeyboard': "True",
+            'resetKeyboard': "True",
+        }
+        if app_path != '':
+            device_info['app'] = app_path
+        else:
+            pass
+        return device_info
 
-if __name__ == "__main__":
-    RunAppAutomation().get_device()
-    # device_count = 2
-    # appium_port = [4586, 7892]
-    # appium_bootstrap_port = [5645, 7541]
-    # RunAppAutomation().launch_appium(device_count, appium_port, appium_bootstrap_port)
+    if __name__ == "__main__":
+        RunAppAutomation().get_device()
+        # device_count = 2
+        # appium_port = [4586, 7892]
+        # appium_bootstrap_port = [5645, 7541]
+        # RunAppAutomation().launch_appium(device_count, appium_port, appium_bootstrap_port)

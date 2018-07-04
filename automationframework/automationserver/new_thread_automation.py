@@ -1,8 +1,8 @@
 # coding : utf-8
 import threading
 import time
-from automationframework.automationserver import run_app_automation, data_read  # 单独此文件需要开启 windows
-#from automationserver import run_app_automation, data_read  # 启动django服务需要开启
+#from automationframework.automationserver import run_app_automation, data_read  # 单独此文件需要开启 windows
+from automationserver import run_app_automation, data_read  # 启动django服务需要开启
 
 
 class NewThreadAutomation(threading.Thread):

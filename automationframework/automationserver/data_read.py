@@ -1,13 +1,13 @@
 # coding : utf-8
 import os
 import xlrd
+import pymysql
 
 
 class DataRead:
-
     # 检查测试用例文件是否存在
     def check_case_file(self, file_name):
-        file_path = os.getcwd() + '\\automationserver\\automationtestcase\\' + str(file_name)
+        file_path = os.getcwd() + '/automationserver/automationtestcase/' + str(file_name)
         if os.path.exists(file_path):  # 判断是否存在该测试用例文件
             return True
         else:
@@ -26,14 +26,28 @@ class DataRead:
 
     # 读取Excel数据
     def read_case_file(self, file_name, sheel_name):
-        case_file_path = os.getcwd() + '\\automationtestcase\\' + str(file_name)  # 测试环境地址
-        #case_file_path = os.getcwd() + '\\automationserver\\automationtestcase\\' + str(file_name)  # Djngo环境地址
+        # case_file_path = os.getcwd() + '/automationtestcase/' + str(file_name)  # 测试环境地址
+        case_file_path = os.getcwd() + '/automationserver/automationtestcase/' + str(file_name)  # Djngo环境地址
         open_excel_case = xlrd.open_workbook(case_file_path)  # 打开Excel 文件
         case_sheel = open_excel_case.sheet_by_name(sheel_name)  # 读取工作簿
         case_nows = case_sheel.nrows  # 读取Excel总行数
         case_column = case_sheel.ncols  # 读取Excel总列数
         return case_nows, case_column, case_sheel
 
+    # 存入数据库
+    def save_database(self, commit_data):
+        # 数据库配置
+        connect_mysql = pymysql.connect(
+            host='steel.iask.in',
+            port=33067,
+            user='huangshunyao',
+            password='Hsy5332#',
+            db='automation_db',
+            charset='utf8',  # 解决中文乱码
+        )
+        mysql_cursor = connect_mysql.cursor()  # 获取游标
+        mysql_cursor.execute(commit_data)  # 执行sql语句 执行sql语句需要写一个循环去提交，执行用例的时候，不要每条都提交，要等10条去提交一次
+        return connect_mysql  # 执行语句在这个方法中执行，关闭和提交 由返回connect_mysql 去控制 提交和关闭
 
 
 if __name__ == "__main__":
