@@ -76,7 +76,7 @@ class RunAppAutomation:
 
         def run(self):
             appium_cmd = subprocess.Popen(
-                'appium -p %s -bp %s >static/appiumlog/log_%s_%s_%s' % (
+                'appium -p %s -bp %s --log static/appiumlog/log_%s_%s_%s' % (
                     self.appium_port, self.appium_bootstrap_port, self.appium_port, self.appium_bootstrap_port,
                     int(time.time())),
                 shell=True)
