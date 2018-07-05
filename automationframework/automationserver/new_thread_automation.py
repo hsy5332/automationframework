@@ -64,8 +64,11 @@ def run_automation_procedure(file_name, run_case_type):
             y.join()
 
         print("完成所有自动化程序")
+        return True
     else:
         print("未获取到任何设备,不执行自动化程序")
+        return False
+
 
 
 if __name__ == "__main__":
