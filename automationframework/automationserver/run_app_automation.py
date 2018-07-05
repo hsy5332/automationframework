@@ -126,7 +126,9 @@ class RunAppAutomation:
     def read_case_operate_type(self, file_name, run_sheel_name, appium_driver):
         run_case_nows, run_case_column, run_sheel = data_read.DataRead().read_case_file(file_name, run_sheel_name)
         print("正在读取测试用例,请稍后...")
+        event_id = time.strftime('%Y%m%d%H%M%S', time.localtime())  # 每台设备运行的eventid
         run_case_now_count = 1;  # 遍历用例表格计数器 从1 开始 第一行不算
+        case_report_list = []  # 存放测试结果列表,然后去保存到数据库
         if_number = 0;  # 用例中 if计数器
         while run_case_now_count < run_case_nows:
             case_id = int(run_sheel.row_values(run_case_now_count)[0])  # 用例编号
@@ -136,29 +138,38 @@ class RunAppAutomation:
             case_describe = run_sheel.row_values(run_case_now_count)[5]  # 步骤描述
             case_execute = run_sheel.row_values(run_case_now_count)[6]  # 用例执行状态
             print(case_id, operate_type, element_attribute, parameter, case_describe, case_execute)
+            stat_case_time = time.time()  # 开始执行用例时间
             if 'Y' in case_execute or 'y' in case_execute:
                 if operate_type == '等待时间':
                     try:
                         time.sleep(int(element_attribute))  # 先读取用例中的time，进行转化若无法转化则取默认值3
-                        print('用例编号: %s,执行通过。' % case_id)
+
                     except:
                         time.sleep(3)
-                        print('用例编号: %s,执行通过。' % case_id)
+                    case_report = '用例编号: %s,执行通过。' % case_id
+                    print(case_report)
                 elif '点击_' in operate_type:
-                    print(RunAppAutomation().operate_click(operate_type, element_attribute, appium_driver, case_id))
+                    case_report = RunAppAutomation().operate_click(operate_type, element_attribute, appium_driver,
+                                                                   case_id)
+                    print(case_report)
                 elif '滑动' in operate_type:
-                    print(RunAppAutomation().operate_slide(operate_type, appium_driver, case_id))
+                    case_report = RunAppAutomation().operate_slide(operate_type, appium_driver, case_id)
+                    print(case_report)
                 elif '长按_' in operate_type:
-                    print(
-                        RunAppAutomation().operate_long_click(operate_type, element_attribute, appium_driver, case_id))
+                    case_report = RunAppAutomation().operate_long_click(operate_type, element_attribute, appium_driver,
+                                                                        case_id)
+                    print(case_report)
                 elif '输入_' in operate_type:
-                    print(RunAppAutomation().operate_input(operate_type, element_attribute, appium_driver, case_id,
-                                                           parameter))
+                    case_report = RunAppAutomation().operate_input(operate_type, element_attribute, appium_driver,
+                                                                   case_id, parameter)
+                    print(case_report)
                 elif '物理按钮' in operate_type:
-                    print(RunAppAutomation().operate_physics_key(appium_driver, case_id, int(parameter)))
+                    case_report = RunAppAutomation().operate_physics_key(appium_driver, case_id, int(parameter))
+                    print(case_report)
                 elif '查找_' in operate_type:
-                    print(RunAppAutomation().operate_check_element(operate_type, element_attribute, appium_driver,
-                                                                   case_id))
+                    case_report = RunAppAutomation().operate_check_element(operate_type, element_attribute,
+                                                                           appium_driver, case_id)
+                    print(case_report)
                 elif 'if' in operate_type:
                     if operate_type == "if包含_id":
                         case_report = RunAppAutomation().operate_check_element(operate_type, element_attribute,
@@ -224,7 +235,24 @@ class RunAppAutomation:
             else:
                 case_report = '用例编号:%s,执行状态为No,故不执行。' % (caseid)
                 print(case_report)
+            end_case_time = time.time()  # 结束用例时间
+            case_report_dictionary = {
+                'devicesexecute': 'Yes',
+                'operatetype': operate_type,
+                'element': element_attribute,
+                'parameter': parameter,
+                'rundescribe': case_describe,
+                'caseexecute': case_execute,
+                'runcasetime': round(end_case_time - stat_case_time, 2),
+                'caseid': case_id,
+                'eventid': event_id,
+                'casereport': case_report,
+                'createdtime': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+                'updatetime': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            }
+            case_report_list.append(case_report_dictionary)  # 把数据存到列表中
             run_case_now_count += 1;  # 循环计数器 +1
+        return case_report_list
 
     # 执行app自动化用例
     def run_app_automation_case(self, file_name, configure_sheel_name, run_sheel_name, device_id, appium_port):
@@ -241,14 +269,51 @@ class RunAppAutomation:
                                                                                platform_version,
                                                                                app_package, app_activity,
                                                                                app_path)  # 初始化appium 连接设备信息
+        driver = webdriver.Remote('http://localhost:%s/wd/hub' % appium_port,
+                                  connect_appium_device_config)  # 连接appium
+        driver.implicitly_wait(20)  # 在未获取到元素时 等待 10 秒
+        case_report_list = RunAppAutomation().read_case_operate_type(file_name, run_sheel_name,
+                                                                     driver)  # 读取用例操作类型 并执行
         try:
-            driver = webdriver.Remote('http://localhost:%s/wd/hub' % appium_port,
-                                      connect_appium_device_config)  # 连接appium
-            driver.implicitly_wait(20)  # 在未获取到元素时 等待 10 秒
-            RunAppAutomation().read_case_operate_type(file_name, run_sheel_name, driver)  # 读取用例操作类型 并执行
+            if len(case_report_list) > 0:
+                add_device_info_count = 0;  # case report 加入设备信息计数器
+                while add_device_info_count < len(case_report_list):
+                    case_report_list[add_device_info_count].update(
+                        {'devicesinfos': "设备名：" + str(device_id) + "," + "系统版本信息：" + 'Android' + str(
+                            platform_version)}),
+                    case_report_list[add_device_info_count].update({'appiumport': appium_port}),
+                    print(case_report_list[add_device_info_count]['appiumport'])
+                    case_report_list[add_device_info_count].update({'devicesexecute': 'Yes'})
+                    add_device_info_count += 1;
+                mysql_cursor, connect_mysql = data_read.DataRead().save_database()  # 获取数据库游标 游标执行sql,以及连接的变量用于关闭数据连接
+                execute_sql_count = 0;  # 执行sql数据计数器
+                while execute_sql_count < len(case_report_list):
+                    execute_sql = "insert into automationquery_automation_function_app  (`devicesinfos`,`appiumport`,`devicesexecute`,`operatetype`,`element`,`parameter`,`rundescribe`,`caseexecute`,`runcasetime`,`caseid`,`eventid`,`casereport`,`createdtime`,`updatetime`)VALUES('%s','%s','%s','%s',\"%s\",'%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
+                        case_report_list[execute_sql_count].get('devicesinfos'),
+                        case_report_list[execute_sql_count].get('appiumport'),
+                        case_report_list[execute_sql_count].get('devicesexecute'),
+                        case_report_list[execute_sql_count].get('operatetype'),
+                        case_report_list[execute_sql_count].get('element'),
+                        case_report_list[execute_sql_count].get('parameter'),
+                        case_report_list[execute_sql_count].get('rundescribe'),
+                        case_report_list[execute_sql_count].get('caseexecute'),
+                        case_report_list[execute_sql_count].get('runcasetime'),
+                        case_report_list[execute_sql_count].get('caseid'),
+                        case_report_list[execute_sql_count].get('eventid'),
+                        case_report_list[execute_sql_count].get('casereport'),
+                        str(case_report_list[execute_sql_count].get('createdtime')),
+                        str(case_report_list[execute_sql_count].get('updatetime')),
+                    )
+                    mysql_cursor.execute(execute_sql)
+                    execute_sql_count += 1;
+                    connect_mysql.commit()  # 提交数据
+                    connect_mysql.close()  # 关闭数据库连接
+            else:
+                pass
         except:
             print('连接Appium失败,连接设备号为: %s 端口号为: %s ' % (device_id, appium_port))
-        driver.quit()
+        driver.quit()  # 退出appium
+
     # 设备连接Appium 配置文件
     def original_device_info(self, udid, platform_name, platform_version, app_package, app_activity, app_path):
         device_info = {

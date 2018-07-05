@@ -34,9 +34,18 @@ class DataRead:
         case_column = case_sheel.ncols  # 读取Excel总列数
         return case_nows, case_column, case_sheel
 
-    # 存入数据库
-    def save_database(self, commit_data):
-        # 数据库配置
+    # 连接数据库
+    def save_database(self):
+        # 线上环境数据库配置
+        # connect_mysql = pymysql.connect(
+        #     host='steel.iask.in',
+        #     port=33067,
+        #     user='huangshunyao',
+        #     password='Hsy5332#',
+        #     db='automation_db',
+        #     charset='utf8',  # 解决中文乱码
+        # )
+        # 本地环境数据库配置
         connect_mysql = pymysql.connect(
             host='steel.iask.in',
             port=33067,
@@ -46,8 +55,7 @@ class DataRead:
             charset='utf8',  # 解决中文乱码
         )
         mysql_cursor = connect_mysql.cursor()  # 获取游标
-        mysql_cursor.execute(commit_data)  # 执行sql语句 执行sql语句需要写一个循环去提交，执行用例的时候，不要每条都提交，要等10条去提交一次
-        return connect_mysql  # 执行语句在这个方法中执行，关闭和提交 由返回connect_mysql 去控制 提交和关闭
+        return mysql_cursor, connect_mysql  # 执行语句用mysql_cursor，关闭和提交 由返回connect_mysql 去控制 提交和关闭
 
 
 if __name__ == "__main__":
