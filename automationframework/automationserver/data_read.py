@@ -47,10 +47,10 @@ class DataRead:
         # )
         # 本地环境数据库配置
         connect_mysql = pymysql.connect(
-            host='steel.iask.in',
-            port=33067,
+            host='192.168.100.6',
+            port=33006,
             user='huangshunyao',
-            password='Hsy5332#',
+            passwd='Hsy5332#',
             db='automation_db',
             charset='utf8',  # 解决中文乱码
         )
@@ -60,3 +60,12 @@ class DataRead:
 
 if __name__ == "__main__":
     DataRead().check_case_file('app_function_case.xlsx')
+    # mysql_cursor, connect_mysql = DataRead().save_database()
+    # mysql_cursor.execute(
+    #     "insert into automationquery_automation_function_app  (`devicesinfos`,`appiumport`,`devicesexecute`,`operatetype`,`element`,`parameter`,`rundescribe`,`caseexecute`,`runcasetime`,`caseid`,`eventid`,`casereport`,`createdtime`,`updatetime`)VALUES('%s','%s','%s','%s',\"%s\",'%s','%s','%s','%s','%s','%s','%s','%s','%s')" %
+    #     (
+    #         '1', '2', '3', '4', '5', '6', '7', '1', '2', '3', '4', '5', '6', '7'
+    #     )
+    # )
+    # connect_mysql.commit()
+    # connect_mysql.close()
