@@ -41,13 +41,13 @@ class RunAppAutomation:
     def check_appium_port(self, appium_port, appium_bootstrap_port):
         if os.name == 'nt':
             if os.popen("netstat -ano | findstr %s" % appium_port).read() == '' and os.popen(
-                    "netstat -ano | findstr %s" % appium_bootstrap_port).read() == '':
+                            "netstat -ano | findstr %s" % appium_bootstrap_port).read() == '':
                 return True
             else:
                 return False
         else:
             if os.popen("lsof -i tcp:%s" % appium_port).read() == '' and os.popen(
-                    "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
+                            "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
                 return True
             else:
                 return False
@@ -115,9 +115,11 @@ class RunAppAutomation:
                     appium_pid_list.append(
                         get_appium_pid.replace(' ', '').strip().split('node')[1].split(getpass.getuser())[
                             0])  # linux Unix 获取pid getpass.getuser() 获取当前系统登录的用户名
-            print(appium_pid_list)
-            for kill_pid in appium_pid_list:
-                os.popen('kill %s' % kill_pid)  # 关闭appium服务
+            if len(appium_pid_list) > 0:
+                for kill_pid in appium_pid_list:
+                    os.popen('kill %s' % kill_pid)  # 关闭appium服务
+            else:
+                print("未获取到appium进程的pid，无法关闭appium请手动关闭")
 
     # 读取用例操作类型
     def read_case_operate_type(self, file_name, run_sheel_name):
@@ -156,6 +158,7 @@ class RunAppAutomation:
             driver = webdriver.Remote('http://localhost:%s/wd/hub' % appium_port,
                                       connect_appium_device_config)  # 连接appium
             driver.implicitly_wait(10)  # 在未获取到元素时 等待 10 秒
+            driver.quit()
             RunAppAutomation().read_case_operate_type(file_name, run_sheel_name)  # 读取用例操作类型 并执行
         except:
             print('连接Appium失败,连接设备号为: %s 端口号为: %s ' % (device_id, appium_port))
