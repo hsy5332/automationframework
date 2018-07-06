@@ -42,13 +42,13 @@ class RunAppAutomation:
     def check_appium_port(self, appium_port, appium_bootstrap_port):
         if os.name == 'nt':
             if os.popen("netstat -ano | findstr %s" % appium_port).read() == '' and os.popen(
-                    "netstat -ano | findstr %s" % appium_bootstrap_port).read() == '':
+                            "netstat -ano | findstr %s" % appium_bootstrap_port).read() == '':
                 return True
             else:
                 return False
         else:
             if os.popen("lsof -i tcp:%s" % appium_port).read() == '' and os.popen(
-                    "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
+                            "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
                 return True
             else:
                 return False
@@ -268,49 +268,52 @@ class RunAppAutomation:
                                                                                platform_version,
                                                                                app_package, app_activity,
                                                                                app_path)  # 初始化appium 连接设备信息
-        driver = webdriver.Remote('http://localhost:%s/wd/hub' % appium_port,
-                                  connect_appium_device_config)  # 连接appium
-        driver.implicitly_wait(20)  # 在未获取到元素时 等待 10 秒
-        case_report_list = RunAppAutomation().read_case_operate_type(file_name, run_sheel_name,
-                                                                     driver)  # 读取用例操作类型 并执行
-        mysql_cursor, connect_mysql = data_read.DataRead().save_database()  # 获取数据库游标 游标执行sql,以及连接的变量用于关闭数据连接
-        if len(case_report_list) > 0:
-            add_device_info_count = 0;  # case report 加入设备信息计数器
-            while add_device_info_count < len(case_report_list):
-                case_report_list[add_device_info_count].update(
-                    {'devicesinfos': "设备名：" + str(device_id) + "," + "系统版本信息：" + 'Android' + str(
-                        platform_version)}),
-                case_report_list[add_device_info_count].update({'appiumport': appium_port}),
-                case_report_list[add_device_info_count].update({'devicesexecute': 'Yes'})
-                add_device_info_count += 1;
-            execute_sql_count = 0;  # 执行sql数据计数器
-            while execute_sql_count < len(case_report_list):
-                execute_sql = "insert into automationquery_automation_function_app  (`devicesinfos`,`appiumport`,`devicesexecute`,`operatetype`,`element`,`parameter`,`rundescribe`,`caseexecute`,`runcasetime`,`caseid`,`eventid`,`casereport`,`createdtime`,`updatetime`)VALUES('%s','%s','%s','%s',\"%s\",'%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
-                    case_report_list[execute_sql_count].get('devicesinfos'),
-                    case_report_list[execute_sql_count].get('appiumport'),
-                    case_report_list[execute_sql_count].get('devicesexecute'),
-                    case_report_list[execute_sql_count].get('operatetype'),
-                    case_report_list[execute_sql_count].get('element'),
-                    case_report_list[execute_sql_count].get('parameter'),
-                    case_report_list[execute_sql_count].get('rundescribe'),
-                    case_report_list[execute_sql_count].get('caseexecute'),
-                    case_report_list[execute_sql_count].get('runcasetime'),
-                    case_report_list[execute_sql_count].get('caseid'),
-                    case_report_list[execute_sql_count].get('eventid'),
-                    case_report_list[execute_sql_count].get('casereport'),
-                    str(case_report_list[execute_sql_count].get('createdtime')),
-                    str(case_report_list[execute_sql_count].get('updatetime')),
-                )
-                mysql_cursor.execute(execute_sql)
-                execute_sql_count += 1;
-            connect_mysql.commit()  # 提交数据
-            connect_mysql.close()  # 关闭数据库连接
-        else:
-            pass
-        # try:
-        #
-        # except:
-        #     print('连接Appium失败,连接设备号为: %s 端口号为: %s ' % (device_id, appium_port))
+
+        try:
+            driver = webdriver.Remote('http://localhost:%s/wd/hub' % appium_port,
+                                      connect_appium_device_config)  # 连接appium
+            driver.implicitly_wait(20)  # 在未获取到元素时 等待 10 秒
+            case_report_list = RunAppAutomation().read_case_operate_type(file_name, run_sheel_name,
+                                                                         driver)  # 读取用例操作类型 并执行
+            try:
+                mysql_cursor, connect_mysql = data_read.DataRead().save_database()  # 获取数据库游标 游标执行sql,以及连接的变量用于关闭数据连接
+                if len(case_report_list) > 0:
+                    add_device_info_count = 0;  # case report 加入设备信息计数器
+                    while add_device_info_count < len(case_report_list):
+                        case_report_list[add_device_info_count].update(
+                            {'devicesinfos': "设备名：" + str(device_id) + "," + "系统版本信息：" + 'Android' + str(
+                                platform_version)}),
+                        case_report_list[add_device_info_count].update({'appiumport': appium_port}),
+                        case_report_list[add_device_info_count].update({'devicesexecute': 'Yes'})
+                        add_device_info_count += 1;
+                    execute_sql_count = 0;  # 执行sql数据计数器
+                    while execute_sql_count < len(case_report_list):
+                        execute_sql = "insert into automationquery_automation_function_app  (`devicesinfos`,`appiumport`,`devicesexecute`,`operatetype`,`element`,`parameter`,`rundescribe`,`caseexecute`,`runcasetime`,`caseid`,`eventid`,`casereport`,`createdtime`,`updatetime`)VALUES('%s','%s','%s','%s',\"%s\",'%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
+                            case_report_list[execute_sql_count].get('devicesinfos'),
+                            case_report_list[execute_sql_count].get('appiumport'),
+                            case_report_list[execute_sql_count].get('devicesexecute'),
+                            case_report_list[execute_sql_count].get('operatetype'),
+                            case_report_list[execute_sql_count].get('element'),
+                            case_report_list[execute_sql_count].get('parameter'),
+                            case_report_list[execute_sql_count].get('rundescribe'),
+                            case_report_list[execute_sql_count].get('caseexecute'),
+                            case_report_list[execute_sql_count].get('runcasetime'),
+                            case_report_list[execute_sql_count].get('caseid'),
+                            case_report_list[execute_sql_count].get('eventid'),
+                            case_report_list[execute_sql_count].get('casereport'),
+                            str(case_report_list[execute_sql_count].get('createdtime')),
+                            str(case_report_list[execute_sql_count].get('updatetime')),
+                        )
+                        mysql_cursor.execute(execute_sql)
+                        execute_sql_count += 1;
+                    connect_mysql.commit()  # 提交数据
+                    connect_mysql.close()  # 关闭数据库连接
+                else:
+                    pass
+            except:
+                print("保存数据失败。")
+        except:
+            print('连接Appium失败,连接设备号为: %s 端口号为: %s ' % (device_id, appium_port))
         driver.quit()  # 退出appium
 
     # 设备连接Appium 配置文件
