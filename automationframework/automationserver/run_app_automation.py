@@ -42,13 +42,13 @@ class RunAppAutomation:
     def check_appium_port(self, appium_port, appium_bootstrap_port):
         if os.name == 'nt':
             if os.popen("netstat -ano | findstr %s" % appium_port).read() == '' and os.popen(
-                            "netstat -ano | findstr %s" % appium_bootstrap_port).read() == '':
+                    "netstat -ano | findstr %s" % appium_bootstrap_port).read() == '':
                 return True
             else:
                 return False
         else:
             if os.popen("lsof -i tcp:%s" % appium_port).read() == '' and os.popen(
-                            "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
+                    "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
                 return True
             else:
                 return False
@@ -129,7 +129,17 @@ class RunAppAutomation:
         event_id = time.strftime('%Y%m%d%H%M%S', time.localtime())  # 每台设备运行的eventid
         run_case_now_count = 1;  # 遍历用例表格计数器 从1 开始 第一行不算
         case_report_list = []  # 存放测试结果列表,然后去保存到数据库
+        end_case_number = []  # Excel end操作类型标记列表
+        if_case_number = []  # Excel if 操作类型标记列表
         if_number = 0;  # 用例中 if计数器
+
+        for if_end_count in range(1, run_case_nows):  # if_end_count if和end 计数器
+            operate_types = run_sheel.row_values(if_end_count)[1]  # 获取Excel所有操作类型
+            if 'if' in operate_types:
+                if_case_number.append(if_end_count)  # 获取操作类型为if 在Excel中的序号
+            if 'end' in operate_types:
+                end_case_number.append(if_end_count)  # 获取操作类型为end 在Excel中的序号
+
         while run_case_now_count < run_case_nows:
             case_id = int(run_sheel.row_values(run_case_now_count)[0])  # 用例编号
             operate_type = run_sheel.row_values(run_case_now_count)[1]  # 操作类型
@@ -170,67 +180,25 @@ class RunAppAutomation:
                                                                            appium_driver, case_id)
                     print(case_report)
                 elif 'if' in operate_type:
-                    if operate_type == "if包含_id":
-                        case_report = RunAppAutomation().operate_check_element(operate_type, element_attribute,
-                                                                               appium_driver, case_id)
-                        if "执行通过" in case_report:
-                            print(case_report)
-                        else:
-                            print(case_report)
-                            # try:
-                            #     x = end_case_number[if_number]
-                            # except IndexError:
-                            #     if len(end_case_number) - 1 >= 0:
-                            #         x = end_case_number[len(end_case_number) - 1]
-                            #         print("当前用例中的if和and不等，请检查用例")
-                            #     else:
-                            #         print("当前用例中的if和and不等，请检查用例")
-                            #         pass
-                            if len(end_case_number) == len(case_number):
-                                x = end_case_number[if_number]
-                            else:
-                                print("当前用例中的if和and不等，请检查用例")
-                                x = end_case_number[-1]
-                    elif "if包含_xpath":
-                        case_report = RunAppAutomation().operate_check_element(operate_type, element_attribute,
-                                                                               appium_driver, case_id)
-                        if "执行通过" in case_report:
-                            print(case_report)
-                        else:
-                            print(case_report)
-                            if len(end_case_number) == len(case_number):
-                                x = end_case_number[if_number]
-                            else:
-                                print("当前用例中的if和and不等，请检查用例")
-                                x = end_case_number[-1]
-                    elif "if包含_classid":
-                        case_report = RunAppAutomation().operate_check_element(operate_type, element_attribute,
-                                                                               appium_driver, case_id)
-                        if "执行通过" in case_report:
-                            print(case_report)
-                        else:
-                            print(case_report)
-                            if len(end_case_number) == len(case_number):
-                                x = end_case_number[if_number]
-                            else:
-                                print("当前用例中的if和and不等，请检查用例")
-                                x = end_case_number[-1]
-                    elif "if包含_textname":
-                        case_report = RunAppAutomation().operate_check_element(operate_type, element_attribute,
-                                                                               appium_driver, case_id)
-                        if "执行通过" in case_report:
-                            print(case_report)
-                        else:
-                            print(case_report)
-                            if len(end_case_number) == len(case_number):
-                                x = end_case_number[if_number]
-                            else:
-                                print("当前用例中的if和and不等，请检查用例")
-                                x = end_case_number[-1]
-                    else:
-                        case_report = "用例编号:%s操作类型错误,该用例不执行。" % (case__id)
+                    case_report = RunAppAutomation().operate_check_element(operate_type, element_attribute,
+                                                                           appium_driver, case_id)
+                    if "执行通过" not in case_report:
                         print(case_report)
-                    if_number += 1;
+                        # try:
+                        #     x = end_case_number[if_number]
+                        # except IndexError:
+                        #     if len(end_case_number) - 1 >= 0:
+                        #         x = end_case_number[len(end_case_number) - 1]
+                        #         print("当前用例中的if和and不等，请检查用例")
+                        #     else:
+                        #         print("当前用例中的if和and不等，请检查用例")
+                        #         pass
+                        if len(end_case_number) == len(if_case_number):
+                            run_case_now_count = end_case_number[if_number]
+                        else:
+                            print("当前用例中的if和and不等，请检查用例")
+                            run_case_now_count = end_case_number[-1]
+                        if_number += 1;
             else:
                 case_report = '用例编号:%s,执行状态为No,故不执行。' % (case_id)
                 print(case_report)
@@ -256,9 +224,9 @@ class RunAppAutomation:
     # 执行app自动化用例
     def run_app_automation_case(self, file_name, configure_sheel_name, run_sheel_name, device_id, appium_port):
         # filename 用例名称 configure_sheel_name 配置表格 run_sheel_name 执行用例表格 device_id 设备id
-        configure_case_nows, configure_case_column, configure_sheel = data_read.DataRead().read_case_file(file_name,
+        configure_case_rows, configure_case_column, configure_sheel = data_read.DataRead().read_case_file(file_name,
                                                                                                           configure_sheel_name)
-        for i in range(1, configure_case_nows):
+        for i in range(1, configure_case_rows):
             app_package = configure_sheel.row_values(i)[0]  # 获取app 包名
             app_activity = configure_sheel.row_values(i)[1]  # 获取启动的activity
             app_path = configure_sheel.row_values(i)[2]  # 获取apk的路径
