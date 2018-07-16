@@ -619,3 +619,4 @@ class RunWebAutomation:
 
 if __name__ == "__main__":
     RunWebAutomation().run_web_case("web_function_case.xlsx", 'web')
+
