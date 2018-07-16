@@ -1,15 +1,16 @@
 # coding : utf-8
 import time
-# from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
+# from automationframework.automationserver import data_read, send_report  # 单独此文件需要开启 windows
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from automationserver import data_read  # 启动django服务需要开启
+from automationserver import data_read, send_report  # 启动django服务需要开启
 
 
 class RunWebAutomation:
     # 读取用例
     def read_case(self, driver, read_case_rows, read_case_column, read_case_sheel,
                   *browser_configure):  # *browser_configure 是一个元组,里面包含一个浏览器信息列表
+        pass_case_count = 1;  # 执行用例的通过数
         event_id = time.strftime('%Y%m%d%H%M%S', time.localtime())  # 执行一组用例事件码
         case_report_list = []  # 存放测试结果列表,然后去保存到数据库
         read_case_count = 1;  # 从Excel第1个开始,0是列标题
@@ -67,6 +68,8 @@ class RunWebAutomation:
                 else:
                     case_report = "用例编号:%s操作类型错误,该用例不执行。" % (case_id)
                     print(case_report)
+                if '执行通过' in case_report:
+                    pass_case_count += 1;  # 当用例执行通过，则加1
             else:
                 print('用例编号:%s,执行状态为No,故不执行。' % case_id)
             end_one_case_time = time.time()  # 结束执行单个用例时间
@@ -91,12 +94,12 @@ class RunWebAutomation:
             }
             case_report_list.append(case_report_dictionary)
             read_case_count += 1;
-        return case_report_list
+        return pass_case_count, case_report_list  # 返回执行用例通过数和执行结果列表
 
     # 执行用例
     def run_web_case(self, file_name, run_case_type):
         excel_shell_name = data_read.DataRead().gain_shell_name(run_case_type)  # 获取工作薄名称
-
+        pass_case_counts, case_rows_counts = 0, 0;  # 执行用例的通过数和执行的总用例数
         # 获取配置工作薄信息
         configure_case_rows, configure_case_column, configure_sheel = data_read.DataRead().read_case_file(file_name,
                                                                                                           excel_shell_name[
@@ -105,6 +108,7 @@ class RunWebAutomation:
         read_case_rows, read_case_column, read_case_sheel = data_read.DataRead().read_case_file(file_name,
                                                                                                 excel_shell_name[1])
         run_web_event_id = time.strftime('%Y%m%d%H%M%S', time.localtime())
+        start_run_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())  # 执行用例时间
         for i in range(1, configure_case_rows):
             browser_name = configure_sheel.row_values(i)[0]  # 浏览器名称
             browser_configure_path = configure_sheel.row_values(i)[1]  # 浏览器配置目录 一般是火狐浏览器用到
@@ -113,12 +117,15 @@ class RunWebAutomation:
             browser_configure = [browser_name, browser_configure_path, test_url,
                                  browser_execute_status]  # 把读取出来的浏览器信息存入在列表中
             if '1' in browser_execute_status or 'Y' in browser_execute_status or 'y' in browser_execute_status:
+                case_rows_counts += (read_case_rows - 1);  # 用例总数
                 driver = RunWebAutomation.start_web_browser(self, browser_name, browser_configure_path)
                 if driver != False:
                     driver.get(test_url)  # 打开测试的网站
-                    case_report_list = RunWebAutomation.read_case(self, driver, read_case_rows, read_case_column,
-                                                                  read_case_sheel,
-                                                                  browser_configure)  # 读取运行的测试用例
+                    pass_case_count, case_report_list = RunWebAutomation.read_case(self, driver, read_case_rows,
+                                                                                   read_case_column,
+                                                                                   read_case_sheel,
+                                                                                   browser_configure)  # 读取运行的测试用例,获取执行通过用例数和结果列表
+                    pass_case_counts += pass_case_count;  # 得到通过用例总数
                     driver.quit()  # 退出浏览器
                     try:
                         mysql_cursor, connect_mysql = data_read.DataRead().save_database()  # 获取数据库游标 游标执行sql,以及连接的变量用于关闭数据连接
@@ -163,6 +170,11 @@ class RunWebAutomation:
                     connect_mysql.close()  # 关闭数据库连接
                 except:
                     print("保存数据失败。")
+        print('11')
+        if send_report.SendReport().sender_email(start_run_time, case_rows_counts, pass_case_counts):  # 发送邮件
+            print('邮件发送成功')
+        else:
+            print('发送邮件失败')
 
     # 启动浏览器
     def start_web_browser(self, browser_name, browser_configure_path):
