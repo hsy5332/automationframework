@@ -7,9 +7,8 @@ from email.header import Header
 
 
 class SendReport(object):
-
     # 发邮件提醒
-    def sender_email(self,runtime, count):
+    def sender_email(self, runtime, case_amount, pass_case_count):
         # 发送邮件配置
         to_email = "allenyao224@qq.com,1653838404@qq.com"  # 收件人
         cc_email = "268455431@qq.com"  # 抄送人
@@ -25,7 +24,7 @@ class SendReport(object):
         if cc_email == "" or "@" not in cc_email:
             ccemail = ""
         receivers = to_email.split(',') + cc_email.split(',')  # 收件人+抄送人
-        message = MIMEText("Dear all: \n           测试用例全部执行完毕，执行用例时间为：%s，共执行%s个用例，通过X用例。" % (runtime, count), 'plain',
+        message = MIMEText("Dear all: \n           测试用例全部执行完毕，执行用例时间为：%s，共执行%s个用例，通过%s个用例。" % (runtime, case_amount, pass_case_count), 'plain',
                            'utf-8')
         message['From'] = Header("automationauthor", 'utf-8')  # 收件人
         message['To'] = Header(to_email)  # 收件人的地址栏显示
@@ -39,9 +38,9 @@ class SendReport(object):
             smtpObj.login(sendmail_configure.get(
                 'mail_user'), sendmail_configure.get('mail_pass'))  # 邮箱的登录
             smtpObj.sendmail(sender, receivers, message.as_string())
-            return ("邮件发送成功")
+            return True
         except smtplib.SMTPException:
-            return ("Error: 无法发送邮件")
+            return False
 
     # 发短信提醒 短信的文案还未修改完善
     def send_message(self):
@@ -74,7 +73,6 @@ class SendReport(object):
 
 
 if __name__ == "__main__":
-
-    SendReport().sender_email("2018年7月2日 22:40:66", "10");  # 邮箱提醒
+    SendReport().sender_email("2018年7月2日 22:40:66", "10", '20');  # 邮箱提醒
     # SendReport().sendmessage();#手机短信提醒
     # print(sendmessage())

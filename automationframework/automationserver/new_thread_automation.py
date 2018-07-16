@@ -2,7 +2,7 @@
 import threading
 import time
 # from automationframework.automationserver import run_app_automation, data_read  # 单独此文件需要开启 windows
-from automationserver import run_app_automation, data_read  # 启动django服务需要开启
+from automationserver import run_app_automation, data_read, send_report  # 启动django服务需要开启
 
 
 class NewThreadAutomation(threading.Thread):
@@ -30,21 +30,27 @@ class NewThreadAutomation(threading.Thread):
             time.sleep(self.thread_count + 2)
             excel_sheel_form = data_read.DataRead().gain_shell_name(self.run_case_type)
             # 执行App自动化
-            run_app_automation.RunAppAutomation().run_app_automation_case(self.file_name, excel_sheel_form[0],
-                                                                          excel_sheel_form[1], self.device_id,
-                                                                          self.appium_port)
+            start_run_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())  # 执行用例时间
+            case_amount, pass_case_count = run_app_automation.RunAppAutomation().run_app_automation_case(self.file_name, excel_sheel_form[0],
+                                                                                                         excel_sheel_form[1],
+                                                                                                         self.device_id, self.appium_port)
             try:
                 run_app_automation.RunAppAutomation().stop_appium(self.appium_port)
                 print("正在关闭appium端口号：%s 的服务进程。" % self.appium_port)
             except:
                 print("关闭Appium 服务失败,请手动关闭进程。Appium 服务端口号为: %s" % self.appium_port)
+            if send_report.SendReport().sender_email(start_run_time, case_amount, pass_case_count):  # 发送邮件
+                print('邮件发送成功')
+            else:
+                print('发送邮件失败')
 
 
 # 运行自动化程序
 def run_automation_procedure(file_name, run_case_type):
     thread_count = 0;  # 启动线程计数器
     thread_list = []  # 存放线程的列表
-    device_count, device_list, appium_port_list, appium_bootstrap_port_list = run_app_automation.RunAppAutomation().get_device()  # 获取设备数、设备名称、appium、appium bootstrap端口号
+    device_count, device_list, appium_port_list, appium_bootstrap_port_list = run_app_automation.RunAppAutomation().get_device()  # 获取设备数、设备名称、appium、appium
+    # bootstrap端口号
     device_list.insert(0, 'run_appium')  # 在列表的始端增加一个字符串 用来判断是否启动appium
     appium_port_list.insert(0, 'run_appium')
     # 创建自动化多设备运行线程
@@ -68,7 +74,6 @@ def run_automation_procedure(file_name, run_case_type):
     else:
         print("未获取到任何设备,不执行自动化程序")
         return False
-
 
 
 if __name__ == "__main__":

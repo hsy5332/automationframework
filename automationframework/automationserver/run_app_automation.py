@@ -42,13 +42,13 @@ class RunAppAutomation:
     def check_appium_port(self, appium_port, appium_bootstrap_port):
         if os.name == 'nt':
             if os.popen("netstat -ano | findstr %s" % appium_port).read() == '' and os.popen(
-                    "netstat -ano | findstr %s" % appium_bootstrap_port).read() == '':
+                            "netstat -ano | findstr %s" % appium_bootstrap_port).read() == '':
                 return True
             else:
                 return False
         else:
             if os.popen("lsof -i tcp:%s" % appium_port).read() == '' and os.popen(
-                    "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
+                            "lsof -i tcp:%s" % appium_bootstrap_port).read() == '':
                 return True
             else:
                 return False
@@ -124,6 +124,7 @@ class RunAppAutomation:
 
     # 读取用例操作类型
     def read_case_operate_type(self, file_name, run_sheel_name, appium_driver):
+        pass_case_count = 1;  # 执行用例的通过数
         run_case_nows, run_case_column, run_sheel = data_read.DataRead().read_case_file(file_name, run_sheel_name)
         print("正在读取测试用例,请稍后...")
         event_id = time.strftime('%Y%m%d%H%M%S', time.localtime())  # 每台设备运行的eventid
@@ -202,6 +203,8 @@ class RunAppAutomation:
             else:
                 case_report = '用例编号:%s,执行状态为No,故不执行。' % (case_id)
                 print(case_report)
+            if '执行通过' in case_report:
+                pass_case_count += 1;  # 当用例执行通过，则加1
             end_case_time = time.time()  # 结束用例时间
             case_report_dictionary = {
                 'devicesexecute': 'Yes',
@@ -219,7 +222,7 @@ class RunAppAutomation:
             }
             case_report_list.append(case_report_dictionary)  # 把数据存到列表中
             run_case_now_count += 1;  # 循环计数器 +1
-        return case_report_list
+        return run_case_nows - 1, pass_case_count, case_report_list  # 返回用例总数、执行通过用例的数量、执行用例结果
 
     # 执行app自动化用例
     def run_app_automation_case(self, file_name, configure_sheel_name, run_sheel_name, device_id, appium_port):
@@ -241,8 +244,10 @@ class RunAppAutomation:
             driver = webdriver.Remote('http://localhost:%s/wd/hub' % appium_port,
                                       connect_appium_device_config)  # 连接appium
             driver.implicitly_wait(20)  # 在未获取到元素时 等待 10 秒
-            case_report_list = RunAppAutomation().read_case_operate_type(file_name, run_sheel_name,
-                                                                         driver)  # 读取用例操作类型 并执行
+            case_amount, pass_case_count, case_report_list = RunAppAutomation().read_case_operate_type(file_name,
+                                                                                                       run_sheel_name,
+                                                                                                       driver)  # 读取用例操作类型 并执行
+            # 获取总用例数、执行用过的用例数、用例执行结果的列表
             try:
                 mysql_cursor, connect_mysql = data_read.DataRead().save_database()  # 获取数据库游标 游标执行sql,以及连接的变量用于关闭数据连接
                 if len(case_report_list) > 0:
@@ -256,7 +261,9 @@ class RunAppAutomation:
                         add_device_info_count += 1;
                     execute_sql_count = 0;  # 执行sql数据计数器
                     while execute_sql_count < len(case_report_list):
-                        execute_sql = "insert into automationquery_automation_function_app  (`devicesinfos`,`appiumport`,`devicesexecute`,`operatetype`,`element`,`parameter`,`rundescribe`,`caseexecute`,`runcasetime`,`caseid`,`eventid`,`casereport`,`createdtime`,`updatetime`)VALUES('%s','%s','%s','%s',\"%s\",'%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
+                        execute_sql = "insert into automationquery_automation_function_app  (`devicesinfos`,`appiumport`,`devicesexecute`,`operatetype`," \
+                                      "`element`,`parameter`,`rundescribe`,`caseexecute`,`runcasetime`,`caseid`,`eventid`,`casereport`,`createdtime`," \
+                                      "`updatetime`)VALUES('%s','%s','%s','%s',\"%s\",'%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
                             case_report_list[execute_sql_count].get('devicesinfos'),
                             case_report_list[execute_sql_count].get('appiumport'),
                             case_report_list[execute_sql_count].get('devicesexecute'),
@@ -280,6 +287,7 @@ class RunAppAutomation:
                     pass
             except:
                 print("保存数据失败。")
+            return case_amount, pass_case_count  # 返回总用例数、执行用过的用例数 用于发送邮件的统计
         except:
             print('连接Appium失败,连接设备号为: %s 端口号为: %s ' % (device_id, appium_port))
         driver.quit()  # 退出appium
