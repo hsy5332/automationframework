@@ -1,11 +1,12 @@
 # coding : utf-8
 import time
-#from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
+# from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from automationserver import data_read  # 启动django服务需要开启
-class RunWebAutomation:
 
+
+class RunWebAutomation:
     # 读取用例
     def read_case(self, driver, read_case_rows, read_case_column, read_case_sheel,
                   *browser_configure):  # *browser_configure 是一个元组,里面包含一个浏览器信息列表
@@ -151,17 +152,17 @@ class RunWebAutomation:
                         print("保存数据失败。")
             else:
                 print('浏览%s,状态为不执行，故该浏览器上不运行用例。' % browser_execute_status)
-                # try:
-                mysql_cursor, connect_mysql = data_read.DataRead().save_database()  # 获取数据库游标 游标执行sql,以及连接的变量用于关闭数据连接
-                execute_sql = "insert into automationquery_automation_function_web  (`browsername`,`browserconfigure`,`browserstatus`,`operatetype`,`element`,`parameter`,`testurl`,`rundescribe`,`caseexecute`,`runcasetime`,`caseid`,`eventid`,`casereport`,`createdtime`,`updatetime`)VALUES('%s','%s','%s','%s',\"%s\",'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
-                    browser_name, browser_configure_path, browser_execute_status, '', '', '', '', '', '', '', '',
-                    run_web_event_id, '', time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
-                    time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-                mysql_cursor.execute(execute_sql)
-                connect_mysql.commit()  # 提交数据
-                connect_mysql.close()  # 关闭数据库连接
-                # except:
-                #     print("保存数据失败。")
+                try:
+                    mysql_cursor, connect_mysql = data_read.DataRead().save_database()  # 获取数据库游标 游标执行sql,以及连接的变量用于关闭数据连接
+                    execute_sql = "insert into automationquery_automation_function_web  (`browsername`,`browserconfigure`,`browserstatus`,`operatetype`,`element`,`parameter`,`testurl`,`rundescribe`,`caseexecute`,`runcasetime`,`caseid`,`eventid`,`casereport`,`createdtime`,`updatetime`)VALUES('%s','%s','%s','%s',\"%s\",'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
+                        browser_name, browser_configure_path, browser_execute_status, '', '', '', '', '', '', '', '',
+                        run_web_event_id, '', time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+                        time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+                    mysql_cursor.execute(execute_sql)
+                    connect_mysql.commit()  # 提交数据
+                    connect_mysql.close()  # 关闭数据库连接
+                except:
+                    print("保存数据失败。")
 
     # 启动浏览器
     def start_web_browser(self, browser_name, browser_configure_path):
@@ -619,4 +620,3 @@ class RunWebAutomation:
 
 if __name__ == "__main__":
     RunWebAutomation().run_web_case("web_function_case.xlsx", 'web')
-
