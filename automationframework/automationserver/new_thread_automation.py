@@ -31,15 +31,16 @@ class NewThreadAutomation(threading.Thread):
             excel_sheel_form = data_read.DataRead().gain_shell_name(self.run_case_type)
             # 执行App自动化
             start_run_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())  # 执行用例时间
-            case_amount, pass_case_count = run_app_automation.RunAppAutomation().run_app_automation_case(self.file_name, excel_sheel_form[0],
-                                                                                                         excel_sheel_form[1],
-                                                                                                         self.device_id, self.appium_port)
+            case_amount, pass_case_count, not_run_case = run_app_automation.RunAppAutomation().run_app_automation_case(
+                self.file_name, excel_sheel_form[0],
+                excel_sheel_form[1],
+                self.device_id, self.appium_port)
             try:
                 run_app_automation.RunAppAutomation().stop_appium(self.appium_port)
                 print("正在关闭appium端口号：%s 的服务进程。" % self.appium_port)
             except:
                 print("关闭Appium 服务失败,请手动关闭进程。Appium 服务端口号为: %s" % self.appium_port)
-            if send_report.SendReport().sender_email(start_run_time, case_amount, pass_case_count):  # 发送邮件
+            if send_report.SendReport().sender_email(start_run_time, case_amount, pass_case_count, not_run_case):  # 发送邮件
                 print('邮件发送成功')
             else:
                 print('发送邮件失败')

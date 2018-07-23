@@ -8,7 +8,7 @@ from email.header import Header
 
 class SendReport(object):
     # 发邮件提醒
-    def sender_email(self, runtime, case_amount, pass_case_count):
+    def sender_email(self, runtime, case_amount, pass_case_count, not_run_case):
         # 发送邮件配置
         to_email = "allenyao224@qq.com,1653838404@qq.com"  # 收件人
         cc_email = "268455431@qq.com"  # 抄送人
@@ -24,8 +24,10 @@ class SendReport(object):
         if cc_email == "" or "@" not in cc_email:
             ccemail = ""
         receivers = to_email.split(',') + cc_email.split(',')  # 收件人+抄送人
-        message = MIMEText("Dear all: \n           测试用例全部执行完毕，执行用例时间为：%s，共执行%s个用例，通过%s个用例。" % (runtime, case_amount, pass_case_count), 'plain',
-                           'utf-8')
+        message = MIMEText(
+            "Dear all: \n           测试用例全部执行完毕，执行用例时间为：%s，共执行%s个用例，通过%s个用例，未执行%s个用例" % (runtime, case_amount, pass_case_count,not_run_case),
+            'plain',
+            'utf-8')
         message['From'] = Header("automationauthor", 'utf-8')  # 收件人
         message['To'] = Header(to_email)  # 收件人的地址栏显示
         message['Cc'] = cc_email

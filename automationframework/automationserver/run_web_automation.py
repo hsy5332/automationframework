@@ -10,10 +10,9 @@ class RunWebAutomation:
     # 读取用例
     def read_case(self, driver, read_case_rows, read_case_column, read_case_sheel,
                   *browser_configure):  # *browser_configure 是一个元组,里面包含一个浏览器信息列表
-        pass_case_count = 1;  # 执行用例的通过数
+        pass_case_count, not_run_case, read_case_count = 0, 0, 1;  # 执行用例的通过数  不执行用例数 从Excel第1个开始,0是列标题
         event_id = time.strftime('%Y%m%d%H%M%S', time.localtime())  # 执行一组用例事件码
         case_report_list = []  # 存放测试结果列表,然后去保存到数据库
-        read_case_count = 1;  # 从Excel第1个开始,0是列标题
         end_case_number = []  # Excel end操作类型标记列表
         if_case_number = []  # Excel if 操作类型标记列表
         for if_end_count in range(1, read_case_rows):  # if_end_count if和end 计数器
@@ -71,6 +70,7 @@ class RunWebAutomation:
                 if '执行通过' in case_report:
                     pass_case_count += 1;  # 当用例执行通过，则加1
             else:
+                not_run_case += 1;
                 print('用例编号:%s,执行状态为No,故不执行。' % case_id)
             end_one_case_time = time.time()  # 结束执行单个用例时间
             run_one_case_time = round(end_one_case_time - start_one_case_time)  # 单个用例执行时间
@@ -94,7 +94,7 @@ class RunWebAutomation:
             }
             case_report_list.append(case_report_dictionary)
             read_case_count += 1;
-        return pass_case_count, case_report_list  # 返回执行用例通过数和执行结果列表
+        return pass_case_count, not_run_case, case_report_list  # 返回执行用例通过数和执行结果列表
 
     # 执行用例
     def run_web_case(self, file_name, run_case_type):
@@ -121,10 +121,11 @@ class RunWebAutomation:
                 driver = RunWebAutomation.start_web_browser(self, browser_name, browser_configure_path)
                 if driver != False:
                     driver.get(test_url)  # 打开测试的网站
-                    pass_case_count, case_report_list = RunWebAutomation.read_case(self, driver, read_case_rows,
-                                                                                   read_case_column,
-                                                                                   read_case_sheel,
-                                                                                   browser_configure)  # 读取运行的测试用例,获取执行通过用例数和结果列表
+                    pass_case_count, not_run_case, case_report_list = RunWebAutomation.read_case(self, driver,
+                                                                                                 read_case_rows,
+                                                                                                 read_case_column,
+                                                                                                 read_case_sheel,
+                                                                                                 browser_configure)  # 读取运行的测试用例,获取执行通过用例数和结果列表
                     pass_case_counts += pass_case_count;  # 得到通过用例总数
                     driver.quit()  # 退出浏览器
                     try:
@@ -170,8 +171,8 @@ class RunWebAutomation:
                     connect_mysql.close()  # 关闭数据库连接
                 except:
                     print("保存数据失败。")
-        print('11')
-        if send_report.SendReport().sender_email(start_run_time, case_rows_counts, pass_case_counts):  # 发送邮件
+        if send_report.SendReport().sender_email(start_run_time, case_rows_counts, pass_case_counts,
+                                                 not_run_case):  # 发送邮件
             print('邮件发送成功')
         else:
             print('发送邮件失败')
