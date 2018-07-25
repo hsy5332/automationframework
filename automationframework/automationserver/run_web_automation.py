@@ -8,7 +8,7 @@ from automationserver import data_read, send_report  # 启动django服务需要�
 
 class RunWebAutomation:
     # 读取用例
-    def read_case(self, driver, read_case_rows, read_case_column, read_case_sheel,
+    def read_web_case(self, driver, read_case_rows, read_case_column, read_case_sheel,
                   *browser_configure):  # *browser_configure 是一个元组,里面包含一个浏览器信息列表
         pass_case_count, not_run_case, read_case_count = 0, 0, 1;  # 执行用例的通过数  不执行用例数 从Excel第1个开始,0是列标题
         event_id = time.strftime('%Y%m%d%H%M%S', time.localtime())  # 执行一组用例事件码
@@ -121,7 +121,7 @@ class RunWebAutomation:
                 driver = RunWebAutomation.start_web_browser(self, browser_name, browser_configure_path)
                 if driver != False:
                     driver.get(test_url)  # 打开测试的网站
-                    pass_case_count, not_run_case, case_report_list = RunWebAutomation.read_case(self, driver,
+                    pass_case_count, not_run_case, case_report_list = RunWebAutomation.read_web_case(self, driver,
                                                                                                  read_case_rows,
                                                                                                  read_case_column,
                                                                                                  read_case_sheel,
