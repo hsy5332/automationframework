@@ -64,9 +64,16 @@ class RunInterfaceAutomation:
                                     if request_parameter_element == report_request_dic_index:
                                         request_parameter[request_parameter_index] = report_request_dic[report_request_dic_index]
                                     if isinstance(report_request_dic_element, dict):
+                                        # 这里也需要去完善一下,要考虑字典中包含字典
                                         for element_index, element in report_request_dic_element.items():
                                             if request_parameter_element == element_index:
                                                 request_parameter[request_parameter_index] = report_request_dic_element[element_index]
+                                    if isinstance(report_request_dic_element, list):
+                                        for list_index, list_element in enumerate(report_request_dic_element):
+                                            if isinstance(list_element, dict):
+                                                for dict_index, dict_element in list_element.items():
+                                                    if request_parameter_element == dict_index:
+                                                        request_parameter[request_parameter_index] = list_element[dict_index]
                         except:
                             print('用例编号: %s,引用关联接口数据出错,请检查关联接口是否请求成功' % interface_case_id)
                         # 遍历取数据接口返回数据和遍历当前请求参数,判断当前请求参数是否有取接口返回数据值如有则取出相应的值
