@@ -163,7 +163,7 @@ class RunInterfaceAutomation:
                 execute_sql_count += 1;
             connect_mysql.commit()  # 提交数据
 
-            
+
             connect_mysql.close()  # 关闭数据库连接
         else:
             print('无任何数据写入数据库中')
