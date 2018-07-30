@@ -3,10 +3,8 @@
 import requests
 import json
 import time
-from automationframework.automationserver import data_read, send_report  # 单独此文件需要开启 windows
-
-
-# from automationserver import data_read, send_report  # 启动django服务需要开启
+# from automationframework.automationserver import data_read, send_report  # 单独此文件需要开启 windows
+from automationserver import data_read, send_report  # 启动django服务需要开启
 
 
 class RunInterfaceAutomation:
@@ -108,7 +106,7 @@ class RunInterfaceAutomation:
                 print(case_report)
 
             case_report_data_dic = {
-                'event_id': run_interface_event_id,
+                'run_interface_event_id': run_interface_event_id,
                 'interface_case_id': interface_case_id,  # caseID
                 'interface_url': interface_url,  # 请求URL
                 'read_excel_interface_header': read_excel_interface_header,  # excel 中的请求头
@@ -157,12 +155,11 @@ class RunInterfaceAutomation:
                     case_report_data_list[execute_sql_count].get('report_data_dic').get('request_report'),
                     str(case_report_data_list[execute_sql_count].get('createdtime')),
                     str(case_report_data_list[execute_sql_count].get('updatetime')),
-                    case_report_data_list[execute_sql_count].get('run_interface_event_idrun_interface_event_id'),
+                    case_report_data_list[execute_sql_count].get('run_interface_event_id'),
                 )
                 mysql_cursor.execute(execute_sql)
                 execute_sql_count += 1;
             connect_mysql.commit()  # 提交数据
-
 
             connect_mysql.close()  # 关闭数据库连接
         else:
