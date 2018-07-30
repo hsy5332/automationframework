@@ -9,7 +9,7 @@ from automationserver import data_read, send_report  # 启动django服务需要�
 class RunWebAutomation:
     # 读取用例
     def read_web_case(self, driver, read_case_rows, read_case_column, read_case_sheel,
-                  *browser_configure):  # *browser_configure 是一个元组,里面包含一个浏览器信息列表
+                      *browser_configure):  # *browser_configure 是一个元组,里面包含一个浏览器信息列表
         pass_case_count, not_run_case, read_case_count = 0, 0, 1;  # 执行用例的通过数  不执行用例数 从Excel第1个开始,0是列标题
         event_id = time.strftime('%Y%m%d%H%M%S', time.localtime())  # 执行一组用例事件码
         case_report_list = []  # 存放测试结果列表,然后去保存到数据库
@@ -122,10 +122,10 @@ class RunWebAutomation:
                 if driver != False:
                     driver.get(test_url)  # 打开测试的网站
                     pass_case_count, not_run_case, case_report_list = RunWebAutomation.read_web_case(self, driver,
-                                                                                                 read_case_rows,
-                                                                                                 read_case_column,
-                                                                                                 read_case_sheel,
-                                                                                                 browser_configure)  # 读取运行的测试用例,获取执行通过用例数和结果列表
+                                                                                                     read_case_rows,
+                                                                                                     read_case_column,
+                                                                                                     read_case_sheel,
+                                                                                                     browser_configure)  # 读取运行的测试用例,获取执行通过用例数和结果列表
                     pass_case_counts += pass_case_count;  # 得到通过用例总数
                     driver.quit()  # 退出浏览器
                     try:
@@ -155,7 +155,7 @@ class RunWebAutomation:
                             connect_mysql.commit()  # 提交数据
                             connect_mysql.close()  # 关闭数据库连接
                         else:
-                            pass
+                            print('无任何数据写入数据库中')
                     except:
                         print("保存数据失败。")
             else:
