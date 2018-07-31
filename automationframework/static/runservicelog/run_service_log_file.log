@@ -1,0 +1,100 @@
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 14 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+July 31, 2018 - 23:31:00
+Django version 2.0.7, using settings 'automationframework.settings'
+Starting development server at http://0.0.0.0:8988/
+Quit the server with CTRL-BREAK.
+Not Found: /
+[31/Jul/2018 23:31:08] "GET / HTTP/1.1" 404 2053
+Not Found: /
+[31/Jul/2018 23:33:18] "GET / HTTP/1.1" 404 2053
+Not Found: /
+[31/Jul/2018 23:33:19] "GET / HTTP/1.1" 404 2053
+Not Found: /
+[31/Jul/2018 23:33:19] "GET / HTTP/1.1" 404 2053
+Not Found: /
+[31/Jul/2018 23:33:19] "GET / HTTP/1.1" 404 2053
+Not Found: /
+[31/Jul/2018 23:33:19] "GET / HTTP/1.1" 404 2053
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 14 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+July 31, 2018 - 23:33:09
+Django version 2.0.7, using settings 'automationframework.settings'
+Starting development server at http://0.0.0.0:8988/
+Quit the server with CTRL-BREAK.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 14 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+July 31, 2018 - 23:34:55
+Django version 2.0.7, using settings 'automationframework.settings'
+Starting development server at http://0.0.0.0:8988/
+Quit the server with CTRL-BREAK.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 14 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+July 31, 2018 - 23:42:17
+Django version 2.0.7, using settings 'automationframework.settings'
+Starting development server at http://0.0.0.0:8988/
+Quit the server with CTRL-BREAK.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 14 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+July 31, 2018 - 23:42:52
+Django version 2.0.7, using settings 'automationframework.settings'
+Starting development server at http://0.0.0.0:8988/
+Quit the server with CTRL-BREAK.
+Not Found: /
+[31/Jul/2018 23:42:56] "GET / HTTP/1.1" 404 2053
+Not Found: /
+[31/Jul/2018 23:42:57] "GET / HTTP/1.1" 404 2053
+Not Found: /
+[31/Jul/2018 23:42:57] "GET / HTTP/1.1" 404 2053
+Not Found: /
+[31/Jul/2018 23:42:57] "GET / HTTP/1.1" 404 2053
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 14 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+July 31, 2018 - 23:44:11
+Django version 2.0.7, using settings 'automationframework.settings'
+Starting development server at http://0.0.0.0:8988/
+Quit the server with CTRL-BREAK.
+Not Found: /
+[31/Jul/2018 23:44:13] "GET / HTTP/1.1" 404 2053
+Not Found: /
+[31/Jul/2018 23:44:23] "GET / HTTP/1.1" 404 2053
+Not Found: /
+[31/Jul/2018 23:44:37] "GET / HTTP/1.1" 404 2053
+Not Found: /
+[31/Jul/2018 23:44:38] "GET / HTTP/1.1" 404 2053
+Not Found: /
+[31/Jul/2018 23:44:38] "GET / HTTP/1.1" 404 2053
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 14 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+July 31, 2018 - 23:44:34
+Django version 2.0.7, using settings 'automationframework.settings'
+Starting development server at http://0.0.0.0:8988/
+Quit the server with CTRL-BREAK.
