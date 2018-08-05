@@ -137,33 +137,37 @@ class RunInterfaceAutomation:
             print('邮件发送成功')
         else:
             print('发送邮件失败')
-        mysql_cursor, connect_mysql = data_read.DataRead().save_database()  # 获取数据库游标 游标执行sql,以及连接的变量用于关闭数据连接
         if len(case_report_data_list) > 0:
-            execute_sql_count = 0;  # 执行sql数据计数器
-            while execute_sql_count < len(case_report_data_list):
-                execute_sql = "insert into automationquery_automation_interface  (`interfaceurl`,`requestparameter`,`realheader`,`realparameter`,`associationinterface`,`referenceinterfaceheader`,`casestatus`,`requesttype`,`caseid`,`remark`,`returnparameter`,`createdtime`,`updatetime`,`eventid`)VALUES(\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",'%s','%s','%s')" % (
-                    case_report_data_list[execute_sql_count].get('interface_url'),
-                    case_report_data_list[execute_sql_count].get('read_excel_interface_parameter'),
-                    case_report_data_list[execute_sql_count].get('request_interface_header'),
-                    case_report_data_list[execute_sql_count].get('request_parameter'),
-                    case_report_data_list[execute_sql_count].get('correlation_interface'),
-                    case_report_data_list[execute_sql_count].get('quote_interface_header'),
-                    case_report_data_list[execute_sql_count].get('interface_execute_status'),
-                    case_report_data_list[execute_sql_count].get('interface_request_type'),
-                    case_report_data_list[execute_sql_count].get('interface_case_id'),
-                    case_report_data_list[execute_sql_count].get('interface_case_remark'),
-                    case_report_data_list[execute_sql_count].get('report_data_dic').get('request_report'),
-                    str(case_report_data_list[execute_sql_count].get('createdtime')),
-                    str(case_report_data_list[execute_sql_count].get('updatetime')),
-                    case_report_data_list[execute_sql_count].get('run_interface_event_id'),
-                )
-                mysql_cursor.execute(execute_sql)
-                execute_sql_count += 1;
-            connect_mysql.commit()  # 提交数据
-
-            connect_mysql.close()  # 关闭数据库连接
+            print('正在连接数据库,保存数据,请稍等......')
+            try:
+                mysql_cursor, connect_mysql = data_read.DataRead().save_database()  # 获取数据库游标 游标执行sql,以及连接的变量用于关闭数据连接
+                execute_sql_count = 0;  # 执行sql数据计数器
+                while execute_sql_count < len(case_report_data_list):
+                    execute_sql = "insert into automationquery_automation_interface  (`interfaceurl`,`requestparameter`,`realheader`,`realparameter`,`associationinterface`,`referenceinterfaceheader`,`casestatus`,`requesttype`,`caseid`,`remark`,`returnparameter`,`createdtime`,`updatetime`,`eventid`)VALUES(\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",'%s','%s','%s')" % (
+                        case_report_data_list[execute_sql_count].get('interface_url'),
+                        case_report_data_list[execute_sql_count].get('read_excel_interface_parameter'),
+                        case_report_data_list[execute_sql_count].get('request_interface_header'),
+                        case_report_data_list[execute_sql_count].get('request_parameter'),
+                        case_report_data_list[execute_sql_count].get('correlation_interface'),
+                        case_report_data_list[execute_sql_count].get('quote_interface_header'),
+                        case_report_data_list[execute_sql_count].get('interface_execute_status'),
+                        case_report_data_list[execute_sql_count].get('interface_request_type'),
+                        case_report_data_list[execute_sql_count].get('interface_case_id'),
+                        case_report_data_list[execute_sql_count].get('interface_case_remark'),
+                        case_report_data_list[execute_sql_count].get('report_data_dic').get('request_report'),
+                        str(case_report_data_list[execute_sql_count].get('createdtime')),
+                        str(case_report_data_list[execute_sql_count].get('updatetime')),
+                        case_report_data_list[execute_sql_count].get('run_interface_event_id'),
+                    )
+                    mysql_cursor.execute(execute_sql)
+                    execute_sql_count += 1;
+                connect_mysql.commit()  # 提交数据
+                connect_mysql.close()  # 关闭数据库连接
+                print('保存测试结果数据成功')
+            except:
+                print('保存测试结果数据失败')
         else:
-            print('无任何数据写入数据库中')
+            print('无任何数据,故不写入数据库中')
 
     # 请求接口
     def interface_request(self, calling_method_parameter):

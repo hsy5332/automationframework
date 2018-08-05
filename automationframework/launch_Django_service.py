@@ -16,7 +16,7 @@ except FileNotFoundError:
 
 try:
     print('正在启动Django服务,端口号为:8988,请访问 127.0.0.1:8988 检查Django服务是否启动成功。')
-    subprocess.Popen('python manage.py runserver 0.0.0.0:8988', stdout=run_service_log_file, stderr=run_service_log_file, shell=True).wait()
+    subprocess.Popen('python3 manage.py runserver 0.0.0.0:8988', stdout=run_service_log_file, stderr=run_service_log_file, shell=True).wait()
 except Exception as e:
     print(e)
     print('执行命令错误,请检查错误异常')

@@ -98,3 +98,33 @@ July 31, 2018 - 23:44:34
 Django version 2.0.7, using settings 'automationframework.settings'
 Starting development server at http://0.0.0.0:8988/
 Quit the server with CTRL-BREAK.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 14 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+August 04, 2018 - 13:21:49
+Django version 2.0.7, using settings 'automationframework.settings'
+Starting development server at http://0.0.0.0:8988/
+Quit the server with CTRL-BREAK.
+Not Found: /
+[04/Aug/2018 13:22:10] "GET / HTTP/1.1" 404 2053
+Not Found: /favicon.ico
+[04/Aug/2018 13:22:10] "GET /favicon.ico HTTP/1.1" 404 2104
+Not Found: /
+[04/Aug/2018 13:22:57] "GET / HTTP/1.1" 404 2053
+Not Found: /
+[04/Aug/2018 13:22:59] "GET / HTTP/1.1" 404 2053
+Not Found: /
+[04/Aug/2018 13:23:00] "GET / HTTP/1.1" 404 2053
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 14 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+August 04, 2018 - 13:22:57
+Django version 2.0.7, using settings 'automationframework.settings'
+Starting development server at http://0.0.0.0:8988/
+Quit the server with CTRL-BREAK.
