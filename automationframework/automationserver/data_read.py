@@ -7,8 +7,8 @@ import pymysql
 class DataRead:
     # 检查测试用例文件是否存在
     def check_case_file(self, file_name):
-        file_path = os.getcwd() + '/automationtestcase/' + str(file_name)  # 测试
-        #file_path = os.getcwd() + '/automationserver/automationtestcase/' + str(file_name)
+        #file_path = os.getcwd() + '/automationtestcase/' + str(file_name)  # 本地开启
+        file_path = os.getcwd() + '/automationserver/automationtestcase/' + str(file_name) #djngo服务开启
         if os.path.exists(file_path):  # 判断是否存在该测试用例文件
             return True
         else:
