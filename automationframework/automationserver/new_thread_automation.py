@@ -1,7 +1,7 @@
 # coding : utf-8
 import threading
 import time
-# from automationframework.automationserver import run_app_automation, data_read  # 单独此文件需要开启 windows
+#from automationframework.automationserver import run_app_automation, data_read, send_report  # 单独此文件需要开启 windows
 from automationserver import run_app_automation, data_read, send_report  # 启动django服务需要开启
 
 
@@ -36,11 +36,12 @@ class NewThreadAutomation(threading.Thread):
                 excel_sheel_form[1],
                 self.device_id, self.appium_port)
             try:
-                run_app_automation.RunAppAutomation().stop_appium(self.appium_port)
+                run_app_automation.RunAppAutomation().stop_appium(self.appium_port) # 关闭appium
                 print("正在关闭appium端口号：%s 的服务进程。" % self.appium_port)
             except:
                 print("关闭Appium 服务失败,请手动关闭进程。Appium 服务端口号为: %s" % self.appium_port)
-            if send_report.SendReport().sender_email(start_run_time, case_amount, pass_case_count, not_run_case):  # 发送邮件
+            if send_report.SendReport().sender_email(start_run_time, case_amount, pass_case_count,
+                                                     not_run_case):  # 发送邮件
                 print('邮件发送成功')
             else:
                 print('发送邮件失败')

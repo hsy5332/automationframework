@@ -76,18 +76,20 @@ class RunAppAutomation:
             self.appium_bootstrap_port = appium_bootstrap_port  # appium bootstrap 端口号
 
         def run(self):
+            # Django 服务开启
             appium_cmd = subprocess.Popen(
                 'appium -p %s -bp %s >static/appiumlog/log_%s_%s_%s' % (
                     self.appium_port, self.appium_bootstrap_port, self.appium_port, self.appium_bootstrap_port,
                     int(time.time())),
                 shell=True)
+            # 本地开启
+            #appium_cmd = subprocess.Popen('appium -p %s -bp %s' % (self.appium_port, self.appium_bootstrap_port),shell=True)
             appium_cmd.wait()
 
     # 启动appium
     def launch_appium(self, device_count, appium_port, appium_bootstrap_port):
         thread_count = 0;
         thread_list = []
-        print(str(os.getcwd()))
         while thread_count < device_count:
             # 创建 appium 多线程 启动appium
             launch_appium_thread = RunAppAutomation.LaunchAppiumThread(appium_port[thread_count],
