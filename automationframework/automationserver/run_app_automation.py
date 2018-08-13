@@ -6,7 +6,7 @@ import threading
 import subprocess
 import time
 import getpass
-# from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
+#from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
 from automationserver import data_read  # 启动django服务需要开启
 from appium import webdriver
 from appium.webdriver.common.touch_action import TouchAction
@@ -70,27 +70,34 @@ class RunAppAutomation:
 
     # 启动 appium 多线程类
     class LaunchAppiumThread(threading.Thread):
-        def __init__(self, appium_port, appium_bootstrap_port):
+        def __init__(self, appium_port, appium_bootstrap_port, curent_work_path):
             threading.Thread.__init__(self)
             self.appium_port = appium_port  # appium 端口号
             self.appium_bootstrap_port = appium_bootstrap_port  # appium bootstrap 端口号
+            self.curent_work_path = curent_work_path  # 存放appiumlog的目录
 
         def run(self):
-            appium_cmd = subprocess.Popen(
-                'appium -p %s -bp %s > static/appiumlog/log_%s_%s_%s' % (
-                    self.appium_port, self.appium_bootstrap_port, self.appium_port, self.appium_bootstrap_port,
-                    int(time.time())),
-                shell=True)
+            self.curent_work_path = self.curent_work_path + 'log_%s_%s_%s' % (
+                self.appium_port, self.appium_bootstrap_port, int(time.time()))
+            run_service_log_file = open(self.curent_work_path, 'a')  # 运行appium log文件
+            appium_cmd = subprocess.Popen('appium -p %s -bp %s' % (self.appium_port, self.appium_bootstrap_port),
+                                          stdout=run_service_log_file, stderr=run_service_log_file, shell=True)
+            # appium_cmd = subprocess.Popen('appium -p %s -bp %s' % (self.appium_port, self.appium_bootstrap_port),
+            #                               shell=True)
+
             appium_cmd.wait()
 
     # 启动appium
     def launch_appium(self, device_count, appium_port, appium_bootstrap_port):
         thread_count = 0;
         thread_list = []
+        print(str(os.getcwd()))
+        curent_work_path = os.getcwd() + '/static/appiumlog/'  # 获取当前工作路径
         while thread_count < device_count:
             # 创建 appium 多线程 启动appium
             launch_appium_thread = RunAppAutomation.LaunchAppiumThread(appium_port[thread_count],
-                                                                       appium_bootstrap_port[thread_count])
+                                                                       appium_bootstrap_port[thread_count],
+                                                                       curent_work_path)
             thread_list.append(launch_appium_thread)
             thread_count += 1;
         for i in thread_list:
@@ -112,6 +119,7 @@ class RunAppAutomation:
         else:
             appium_pid_list = []
             for get_appium_pid in os.popen("lsof -i tcp:%s" % appium_port):
+                print(get_appium_pid)
                 if 'LISTEN' in get_appium_pid and str(appium_port) in get_appium_pid:
                     appium_pid_list.append(
                         get_appium_pid.replace(' ', '').strip().split('node')[1].split(getpass.getuser())[
