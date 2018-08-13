@@ -128,3 +128,53 @@ August 04, 2018 - 13:22:57
 Django version 2.0.7, using settings 'automationframework.settings'
 Starting development server at http://0.0.0.0:8988/
 Quit the server with CTRL-BREAK.
+Not Found: /
+[13/Aug/2018 00:43:10] "GET / HTTP/1.1" 404 2053
+Not Found: /favicon.ico
+[13/Aug/2018 00:43:11] "GET /favicon.ico HTTP/1.1" 404 2104
+Not Found: /
+[13/Aug/2018 15:39:06] "GET / HTTP/1.1" 404 2053
+Not Found: /favicon.ico
+[13/Aug/2018 15:39:07] "GET /favicon.ico HTTP/1.1" 404 2104
+Not Found: /automationserver/
+[13/Aug/2018 15:39:21] "GET /automationserver/ HTTP/1.1" 404 3079
+[13/Aug/2018 15:40:24] "POST /automationserver/runcase HTTP/1.1" 200 74
+* daemon not running; starting now at tcp:5037
+* daemon started successfully
+[13/Aug/2018 15:44:26] "POST /automationserver/runcase HTTP/1.1" 200 222
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 15 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+August 13, 2018 - 15:34:49
+Django version 2.1, using settings 'automationframework.settings'
+Starting development server at http://0.0.0.0:8988/
+Quit the server with CONTROL-C.
+未获取到任何设备,不执行自动化程序
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 15 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+August 13, 2018 - 15:49:10
+Django version 2.1, using settings 'automationframework.settings'
+Starting development server at http://0.0.0.0:8988/
+Quit the server with CONTROL-C.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 15 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+August 13, 2018 - 15:51:05
+Django version 2.1, using settings 'automationframework.settings'
+Starting development server at http://0.0.0.0:8988/
+Quit the server with CONTROL-C.
+[13/Aug/2018 15:52:54] "POST /automationserver/runcase HTTP/1.1" 200 222
+[13/Aug/2018 15:53:00] "POST /automationserver/runcase HTTP/1.1" 200 222
+[13/Aug/2018 16:02:11] "POST /automationserver/runcase HTTP/1.1" 200 222
+[13/Aug/2018 16:02:37] "POST /automationserver/runcase HTTP/1.1" 200 222
+[13/Aug/2018 16:02:37] "POST /automationserver/runcase HTTP/1.1" 200 222

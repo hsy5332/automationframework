@@ -1,10 +1,15 @@
 # coding : utf-8
 import subprocess
 import os
+import time
 
+# 打印token值
+print('启动脚本时间为 : %s' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
+print('当前请求接口的token为 : %s' % (int(time.time()) + 86400))
 curent_work_path = os.getcwd()  # 获取当前工作路径
 try:
-    run_service_log_file = open('%s/static/runservicelog/run_service_log_file.log' % curent_work_path, 'a')  # 运行Django log文件
+    run_service_log_file = open('%s/static/runservicelog/run_service_log_file.log' % curent_work_path,
+                                'a')  # 运行Django log文件
     print('正在创建Django服务log存放路径,路径为:%s/static/runservicelog/run_service_log_file.log' % curent_work_path)
 except FileNotFoundError:
     try:
@@ -16,7 +21,8 @@ except FileNotFoundError:
 
 try:
     print('正在启动Django服务,端口号为:8988,请访问 127.0.0.1:8988 检查Django服务是否启动成功。')
-    subprocess.Popen('python3 manage.py runserver 0.0.0.0:8988', stdout=run_service_log_file, stderr=run_service_log_file, shell=True).wait()
+    subprocess.Popen('python3 manage.py runserver 0.0.0.0:8988', stdout=run_service_log_file,
+                     stderr=run_service_log_file, shell=True).wait()
 except Exception as e:
     print(e)
     print('执行命令错误,请检查错误异常')
