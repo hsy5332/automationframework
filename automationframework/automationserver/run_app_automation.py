@@ -70,21 +70,17 @@ class RunAppAutomation:
 
     # 启动 appium 多线程类
     class LaunchAppiumThread(threading.Thread):
-        def __init__(self, appium_port, appium_bootstrap_port, curent_work_path):
+        def __init__(self, appium_port, appium_bootstrap_port):
             threading.Thread.__init__(self)
             self.appium_port = appium_port  # appium 端口号
             self.appium_bootstrap_port = appium_bootstrap_port  # appium bootstrap 端口号
-            self.curent_work_path = curent_work_path  # 存放appiumlog的目录
 
         def run(self):
-            self.curent_work_path = self.curent_work_path + 'log_%s_%s_%s' % (
-                self.appium_port, self.appium_bootstrap_port, int(time.time()))
-            run_service_log_file = open(self.curent_work_path, 'a')  # 运行appium log文件
-            appium_cmd = subprocess.Popen('appium -p %s -bp %s' % (self.appium_port, self.appium_bootstrap_port),
-                                          stdout=run_service_log_file, stderr=run_service_log_file, shell=True)
-            # appium_cmd = subprocess.Popen('appium -p %s -bp %s' % (self.appium_port, self.appium_bootstrap_port),
-            #                               shell=True)
-
+            appium_cmd = subprocess.Popen(
+                'appium -p %s -bp %s >static/appiumlog/log_%s_%s_%s' % (
+                    self.appium_port, self.appium_bootstrap_port, self.appium_port, self.appium_bootstrap_port,
+                    int(time.time())),
+                shell=True)
             appium_cmd.wait()
 
     # 启动appium
@@ -92,12 +88,10 @@ class RunAppAutomation:
         thread_count = 0;
         thread_list = []
         print(str(os.getcwd()))
-        curent_work_path = os.getcwd() + '/static/appiumlog/'  # 获取当前工作路径
         while thread_count < device_count:
             # 创建 appium 多线程 启动appium
             launch_appium_thread = RunAppAutomation.LaunchAppiumThread(appium_port[thread_count],
-                                                                       appium_bootstrap_port[thread_count],
-                                                                       curent_work_path)
+                                                                       appium_bootstrap_port[thread_count])
             thread_list.append(launch_appium_thread)
             thread_count += 1;
         for i in thread_list:
