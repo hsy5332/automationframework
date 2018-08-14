@@ -76,14 +76,24 @@ class RunAppAutomation:
             self.appium_bootstrap_port = appium_bootstrap_port  # appium bootstrap 端口号
 
         def run(self):
-            # Django 服务开启
+            #Django 服务开启
             appium_cmd = subprocess.Popen(
                 'appium -p %s -bp %s >static/appiumlog/log_%s_%s_%s' % (
                     self.appium_port, self.appium_bootstrap_port, self.appium_port, self.appium_bootstrap_port,
                     int(time.time())),
                 shell=True)
-            # 本地开启
-            #appium_cmd = subprocess.Popen('appium -p %s -bp %s' % (self.appium_port, self.appium_bootstrap_port),shell=True)
+
+            # 调试开启
+            # appium_cmd = subprocess.Popen('appium -p %s -bp %s' % (self.appium_port, self.appium_bootstrap_port),
+            #                               shell=True)
+            appium_pid = appium_cmd.pid
+            if appium_pid > 0:
+                mysql_cursor, connect_mysql = data_read.DataRead().save_database()
+                execute_sql = "insert into `automationquery_automation_appium_pid` (`appium_port`,`appium_bootstrap_port`,`appium_pid`,`created_time`)VALUES('%s','%s','%s','%s')" % (
+                    self.appium_port, self.appium_bootstrap_port, appium_pid, int(time.time()))
+                mysql_cursor.execute(execute_sql)
+                connect_mysql.commit()  # 提交数据
+                connect_mysql.close()  # 关闭数据库连接
             appium_cmd.wait()
 
     # 启动appium
@@ -102,8 +112,22 @@ class RunAppAutomation:
             y.join()
 
     # 关闭appium 服务
-    def stop_appium(self, appium_port):
-        # 获取所有的appium 服务对应的pid
+    def stop_appium(self, device_id, appium_port, contrast_time_stamp):
+        # 获取数据库中所有的appium 服务对应的pid
+        mysql_cursor, connect_mysql = data_read.DataRead().save_database()
+        execute_sql = "UPDATE `automationquery_automation_appium_pid` SET `devices_id` = '%s' WHERE `appium_port` = '%s'" % (
+            device_id, appium_port)
+        mysql_cursor.execute(execute_sql)
+        connect_mysql.commit()  # 提交数据
+        execute_select_sql = "SELECT `appium_pid` FROM `automationquery_automation_appium_pid` WHERE `appium_port` = '%s' AND `created_time` > '%s'" % (
+            appium_port, str(contrast_time_stamp - 60))
+        mysql_cursor.execute(execute_select_sql)  # 查询数据
+        execute_select_sql_results = mysql_cursor.fetchall()  # 返回所有的查询结果数据
+        for pid_tuple in execute_select_sql_results:
+            appium_pid = pid_tuple[0]
+        connect_mysql.close()
+
+        # 关闭appium服务
         if os.name == 'nt':
             appium_pid_list = []
             for get_appium_pid in os.popen("netstat -ano | findstr %s" % appium_port):
@@ -115,16 +139,13 @@ class RunAppAutomation:
         else:
             appium_pid_list = []
             for get_appium_pid in os.popen("lsof -i tcp:%s" % appium_port):
-                print(get_appium_pid)
                 if 'LISTEN' in get_appium_pid and str(appium_port) in get_appium_pid:
                     appium_pid_list.append(
                         get_appium_pid.replace(' ', '').strip().split('node')[1].split(getpass.getuser())[
                             0])  # linux Unix 获取pid getpass.getuser() 获取当前系统登录的用户名
-            if len(appium_pid_list) > 0:
-                for kill_pid in appium_pid_list:
-                    os.popen('kill %s' % kill_pid)  # 关闭appium服务
-            else:
-                print("未获取到appium进程的pid，无法关闭appium请手动关闭")
+            for kill_pid in appium_pid_list:
+                os.popen('kill %s' % kill_pid)  # 关闭appium服务
+            os.popen('kill %s' % appium_pid)  # 关闭Appium 主进程Pid
 
     # 读取用例操作类型
     def read_case_operate_type(self, file_name, run_sheel_name, appium_driver):
@@ -268,7 +289,7 @@ class RunAppAutomation:
                         add_device_info_count += 1;
                     execute_sql_count = 0;  # 执行sql数据计数器
                     while execute_sql_count < len(case_report_list):
-                        execute_sql = "insert into automationquery_automation_function_app  (`devicesinfos`,`appiumport`,`devicesexecute`,`operatetype`," \
+                        execute_sql = "insert into `automationquery_automation_function_app`  (`devicesinfos`,`appiumport`,`devicesexecute`,`operatetype`," \
                                       "`element`,`parameter`,`rundescribe`,`caseexecute`,`runcasetime`,`caseid`,`eventid`,`casereport`,`createdtime`," \
                                       "`updatetime`)VALUES('%s','%s','%s','%s',\"%s\",'%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
                                           case_report_list[execute_sql_count].get('devicesinfos'),

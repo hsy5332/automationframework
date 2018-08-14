@@ -27,8 +27,8 @@ class DataRead:
 
     # 读取Excel数据
     def read_case_file(self, file_name, sheel_name):
-        case_file_path = os.getcwd() + '/automationtestcase/' + str(file_name)  # 测试环境地址
-        #case_file_path = os.getcwd() + '/automationserver/automationtestcase/' + str(file_name)  # Djngo环境地址
+        #case_file_path = os.getcwd() + '/automationtestcase/' + str(file_name)  # 测试环境地址
+        case_file_path = os.getcwd() + '/automationserver/automationtestcase/' + str(file_name)  # Djngo环境地址
         open_excel_case = xlrd.open_workbook(case_file_path)  # 打开Excel 文件
         case_sheel = open_excel_case.sheet_by_name(sheel_name)  # 读取工作簿
         case_nows = case_sheel.nrows  # 读取Excel总行数
@@ -46,12 +46,21 @@ class DataRead:
         #     db='automation_db',
         #     charset='utf8',  # 解决中文乱码
         # )
-        # 本地环境数据库配置
+        # # 本地环境数据库配置
+        # connect_mysql = pymysql.connect(
+        #     host='192.168.100.6',
+        #     port=33006,
+        #     user='huangshunyao',
+        #     passwd='Hsy5332#',
+        #     db='automation_db',
+        #     charset='utf8',  # 解决中文乱码
+        # )
+
         connect_mysql = pymysql.connect(
-            host='192.168.100.6',
-            port=33006,
-            user='huangshunyao',
-            passwd='Hsy5332#',
+            host='localhost',
+            port=3306,
+            user='root',
+            passwd='',
             db='automation_db',
             charset='utf8',  # 解决中文乱码
         )
