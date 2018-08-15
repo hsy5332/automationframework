@@ -6,7 +6,7 @@ import threading
 import subprocess
 import time
 import getpass
-#from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
+# from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
 from automationserver import data_read  # 启动django服务需要开启
 from appium import webdriver
 from appium.webdriver.common.touch_action import TouchAction
@@ -76,9 +76,9 @@ class RunAppAutomation:
             self.appium_bootstrap_port = appium_bootstrap_port  # appium bootstrap 端口号
 
         def run(self):
-            #Django 服务开启
+            # Django 服务开启
             appium_cmd = subprocess.Popen(
-                'appium -p %s -bp %s >static/appiumlog/log_%s_%s_%s' % (
+                'appium -p %s -bp %s >static/appiumlog/log_%s_%s_%s.log' % (
                     self.appium_port, self.appium_bootstrap_port, self.appium_port, self.appium_bootstrap_port,
                     int(time.time())),
                 shell=True)
@@ -182,7 +182,7 @@ class RunAppAutomation:
 
                     except:
                         time.sleep(3)
-                    case_report = '用例编号: %s,执行通过。' % case_id
+                    case_report = '用例编号:%s,执行通过。' % case_id
                     print(case_report)
                 elif '点击_' in operate_type:
                     case_report = RunAppAutomation().operate_click(operate_type, element_attribute, appium_driver,
@@ -225,7 +225,7 @@ class RunAppAutomation:
                         else:
                             print("当前用例中的if和and不等，请检查用例")
                             run_case_now_count = end_case_number[-1]
-                        if_number += 1;
+                    if_number += 1;
             else:
                 not_run_case += 1;
                 case_report = '用例编号:%s,执行状态为No,故不执行。' % (case_id)
@@ -456,7 +456,7 @@ class RunAppAutomation:
 
     # Android物理按键操作
     def operate_physics_key(self, driver, case_id, *parameter):
-        key_code = parameter[0]
+        key_code = str(parameter[0])
         try:
             driver.keyevent(key_code)
             case_report = "用例编号:%s,执行通过。" % (case_id)
@@ -470,67 +470,83 @@ class RunAppAutomation:
         if operate_type == "查找_id":
             try:
                 driver.find_element_by_id(element)
-                case_report = "用例编号:%s,执行通过。" % (case_id)
+                case_report = "用例编号:%s,执行通过。页面包含此元素" % (case_id)
                 return case_report
             except:
-                case_report = "用例编号:%s,执行不通过。" % (case_id)
+                case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
                 return case_report
         elif operate_type == "查找_xpath":
             try:
                 driver.find_element_by_xpath(element)
-                case_report = "用例编号:%s,执行通过。" % (case_id)
+                case_report = "用例编号:%s,执行通过。页面包含此元素" % (case_id)
                 return case_report
             except:
-                case_report = "用例编号:%s,执行不通过。" % (case_id)
+                case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
                 return case_report
         elif operate_type == "查找_classid":
             try:
                 driver.find_elements_by_class_name(element)
-                case_report = "用例编号:%s,执行通过。" % (case_id)
+                case_report = "用例编号:%s,执行通过。页面包含此元素" % (case_id)
                 return case_report
             except:
-                case_report = "用例编号:%s,执行不通过。" % (case_id)
+                case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
                 return case_report
         elif operate_type == "查找_textname":
             try:
                 driver.find_elements_by_name(element)[0]  # 注意 此方法在appium高版本上 可能无法运行
-                case_report = "用例编号:%s,执行通过。" % (case_id)
+                case_report = "用例编号:%s,执行通过。页面包含此元素" % (case_id)
                 return case_report
             except:
-                case_report = "用例编号:%s,执行不通过。" % (case_id)
+                case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
                 return case_report
+        elif operate_type == '查找_文本':
+            all_xpath_element = driver.find_elements_by_xpath('//*')
+            for xpath_element in all_xpath_element:
+                if xpath_element.text == element:
+                    case_report = "用例编号:%s,执行通过。页面包含此元素。" % (case_id)
+                    return case_report
+            case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
+            return case_report
         elif operate_type == "if包含_id":
             try:
                 driver.find_element_by_id(element)
-                case_report = "用例编号:%s,执行通过。" % (case_id)
+                case_report = "用例编号:%s,执行通过。页面包含此元素。" % (case_id)
                 return case_report
             except:
-                case_report = "用例编号:%s,执行不通过。" % (case_id)
+                case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
                 return case_report
         elif operate_type == "if包含_xpath":
             try:
                 driver.find_element_by_xpath(element)
-                case_report = "用例编号:%s,执行通过。" % (case_id)
+                case_report = "用例编号:%s,执行通过。页面包含此元素。" % (case_id)
                 return case_report
             except:
-                case_report = "用例编号:%s,执行不通过。" % (case_id)
+                case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
                 return case_report
         elif operate_type == "if包含_classid":
             try:
                 driver.find_elements_by_class_name(element)
-                case_report = "用例编号:%s,执行通过。" % (case_id)
+                case_report = "用例编号:%s,执行通过。页面包含此元素。" % (case_id)
                 return case_report
             except:
-                case_report = "用例编号:%s,执行不通过。" % (case_id)
+                case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
                 return case_report
         elif operate_type == "if包含_textname":
             try:
                 driver.find_elements_by_name(element)[0]
-                case_report = "用例编号:%s,执行通过。" % (case_id)
+                case_report = "用例编号:%s,执行通过。页面包含此元素。" % (case_id)
                 return case_report
             except:
-                case_report = "用例编号:%s,执行不通过。" % (case_id)
+                case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
                 return case_report
+        elif operate_type == 'if包含_文本':
+            all_xpath_element = driver.find_elements_by_xpath('//*')
+            for xpath_element in all_xpath_element:
+                if xpath_element.text == element:
+                    case_report = "用例编号:%s,执行通过。页面包含此元素。" % (case_id)
+                    return case_report
+            case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
+            return case_report
         else:
             case_report = "用例编号:%s,执行不通过，该用例的元素属性可能有问题，请检查该用例。" % (case_id)
             return case_report
@@ -577,9 +593,9 @@ class RunAppAutomation:
             case_report = "用例编号:%s,执行不通过，该用例的元素属性或参数可能有问题，请检查该用例。" % (case_id)
             return case_report
 
-        if __name__ == "__main__":
-            RunAppAutomation().get_device()
-            # device_count = 2
-            # appium_port = [4586, 7892]
-            # appium_bootstrap_port = [5645, 7541]
-            # RunAppAutomation().launch_appium(device_count, appium_port, appium_bootstrap_port)
+if __name__ == "__main__":
+    RunAppAutomation().get_device()
+    # device_count = 2
+    # appium_port = [4586, 7892]
+    # appium_bootstrap_port = [5645, 7541]
+    # RunAppAutomation().launch_appium(device_count, appium_port, appium_bootstrap_port)
