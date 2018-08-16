@@ -3,7 +3,7 @@ import time
 # from automationframework.automationserver import data_read, send_report  # 单独此文件需要开启 windows
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from automationserver import data_read, send_report  # 启动django服务需要开启
+from . import data_read, send_report  # 启动django服务需要开启
 
 
 class RunWebAutomation:

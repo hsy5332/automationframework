@@ -2,7 +2,7 @@
 import threading
 import time
 # from automationframework.automationserver import run_app_automation, data_read, send_report  # 单独此文件需要开启 windows
-from automationserver import run_app_automation, data_read, send_report  # 启动django服务需要开启
+from . import run_app_automation, data_read, send_report  # 启动django服务需要开启
 
 
 class NewThreadAutomation(threading.Thread):
@@ -73,10 +73,8 @@ def run_automation_procedure(file_name, run_case_type):
             y.join()
 
         print("完成所有自动化程序")
-        return True
     else:
         print("未获取到任何设备,不执行自动化程序")
-        return False
 
 
 if __name__ == "__main__":

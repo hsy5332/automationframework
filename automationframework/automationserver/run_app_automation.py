@@ -7,7 +7,7 @@ import subprocess
 import time
 import getpass
 # from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
-from automationserver import data_read  # 启动django服务需要开启
+from . import data_read  # 启动django服务需要开启
 from appium import webdriver
 from appium.webdriver.common.touch_action import TouchAction
 
