@@ -16,6 +16,8 @@ import djcelery
 djcelery.setup_loader()
 BROKER_URL = 'pyamqp://guest@localhost//'
 BROKER_POOL_LIMIT = 0
+CELERYD_CONCURRENCY = 1  # 并发worker数
+CELERYD_TASK_TIME_LIMIT = 3600 # 单个任务超过此值时，任务则会被销毁
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 CELERY_TIMEZONE = 'Asia/Shanghai'
 

@@ -47,12 +47,20 @@ class LaunchServer(threading.Thread):
             subprocess.Popen('celery worker -A automationframework -l info', stdout=run_celery_service_log_file,
                              stderr=run_celery_service_log_file, shell=True).wait()
 
+        elif self.run_type == 'flower':
+            try:
+                subprocess.Popen('python3.6 manage.py celery flower', shell=True).wait()
+                print('celery flower 启动成功,请访问 http://localhost:5555/ 进行查看。')
+            except:
+                print('celery flower 启动失败')
+
+
         else:
             print('无该启动类型的服务，请检查服务类型参数传递是否正确')
 
 
 if __name__ == '__main__':
-    run_type_list, run_thread_list = ['Django', 'celery'], [];
+    run_type_list, run_thread_list = ['Django', 'celery', 'flower'], [];
     run_count = 0;
     while run_count < len(run_type_list):
         run_thread = LaunchServer(run_type_list[run_count])
