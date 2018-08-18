@@ -1,7 +1,7 @@
 # coding : utf-8
 import threading
 import time
-# from automationframework.automationserver import run_app_automation, data_read, send_report  # 单独此文件需要开启 windows
+#from automationframework.automationserver import run_app_automation, data_read, send_report  # 单独此文件需要开启 windows
 from . import run_app_automation, data_read, send_report  # 启动django服务需要开启
 
 
@@ -49,10 +49,11 @@ class NewThreadAutomation(threading.Thread):
 
 
 # 运行自动化程序
-def run_automation_procedure(file_name, run_case_type):
+def run_automation_procedure(file_name, run_case_type, devices_id):
     thread_count = 0;  # 启动线程计数器
     thread_list = []  # 存放线程的列表
-    device_count, device_list, appium_port_list, appium_bootstrap_port_list = run_app_automation.RunAppAutomation().get_device()  # 获取设备数、设备名称、appium、appium
+    device_count, device_list, appium_port_list, appium_bootstrap_port_list = run_app_automation.RunAppAutomation().get_device(
+        devices_id)  # 获取设备数、设备名称、appium、appium
     # bootstrap端口号
     device_list.insert(0, 'run_appium')  # 在列表的始端增加一个字符串 用来判断是否启动appium
     appium_port_list.insert(0, 'run_appium')
@@ -78,4 +79,4 @@ def run_automation_procedure(file_name, run_case_type):
 
 
 if __name__ == "__main__":
-    run_automation_procedure('app_function_case.xlsx', 'app')  # 运行App 自动化用例 参数名
+    run_automation_procedure('app_function_case.xlsx', 'app', 'all')  # 运行App 自动化用例 参数名

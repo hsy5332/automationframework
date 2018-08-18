@@ -14,12 +14,16 @@ from appium.webdriver.common.touch_action import TouchAction
 
 class RunAppAutomation:
     # 获取本地设备信息
-    def get_device(self):
+    def get_device(self, devices_id):
         devices_list = []  # 存放设备列表
         for device_id in os.popen("adb devices"):
             if 'device' in device_id and 'attached' not in device_id:
                 devices_list.append(device_id.split('\t')[0])
-        device_count = len(devices_list)  # 获取的设备数
+        if devices_id == 'all' or devices_id == '' or devices_id == ' ':
+            device_count = len(devices_list)  # 获取的设备数
+        else:
+            device_count = 1;
+            devices_list = [devices_id]
         appium_port, appium_bootstrap_port = RunAppAutomation.create_appium_port(self, device_count)
         return device_count, devices_list, appium_port, appium_bootstrap_port
 
@@ -592,6 +596,7 @@ class RunAppAutomation:
         else:
             case_report = "用例编号:%s,执行不通过，该用例的元素属性或参数可能有问题，请检查该用例。" % (case_id)
             return case_report
+
 
 if __name__ == "__main__":
     RunAppAutomation().get_device()

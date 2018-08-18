@@ -49,8 +49,8 @@ class LaunchServer(threading.Thread):
 
         elif self.run_type == 'flower':
             try:
-                subprocess.Popen('python3.6 manage.py celery flower', shell=True).wait()
                 print('celery flower 启动成功,请访问 http://localhost:5555/ 进行查看。')
+                subprocess.Popen('python3.6 manage.py celery flower', shell=True).wait()
             except:
                 print('celery flower 启动失败')
 
