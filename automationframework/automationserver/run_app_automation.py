@@ -21,6 +21,9 @@ class RunAppAutomation:
                 devices_list.append(device_id.split('\t')[0])
         if devices_id == 'all' or devices_id == '' or devices_id == ' ':
             device_count = len(devices_list)  # 获取的设备数
+        elif ',' in devices_id:
+            devices_list = str(devices_id).split(',')
+            device_count = len(devices_list)
         else:
             device_count = 1;
             devices_list = [devices_id]

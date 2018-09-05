@@ -11,8 +11,6 @@ class LaunchServer(threading.Thread):
         self.run_type = run_type  # 启动类型 Django/celery
 
     def run(self):
-        print('启动脚本时间为 : %s' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
-        print('当前请求接口的token为 : %s' % (int(time.time()) + 86400))
         curent_work_path = os.getcwd()  # 获取当前工作路径
         if self.run_type == 'Django':
             # 打印token值
@@ -60,6 +58,8 @@ class LaunchServer(threading.Thread):
 
 
 if __name__ == '__main__':
+    print('启动脚本时间为 : %s' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
+    print('当前请求接口的token为 : %s' % (int(time.time()) + 86400))
     run_type_list, run_thread_list = ['Django', 'celery', 'flower'], [];
     run_count = 0;
     while run_count < len(run_type_list):

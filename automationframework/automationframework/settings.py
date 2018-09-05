@@ -17,7 +17,7 @@ djcelery.setup_loader()
 BROKER_URL = 'pyamqp://guest@localhost//'
 BROKER_POOL_LIMIT = 0
 CELERYD_CONCURRENCY = 1  # 并发worker数
-CELERYD_TASK_TIME_LIMIT = 3600  # 单个任务超过此值时，任务则会被销毁
+CELERYD_TASK_TIME_LIMIT = 1200  # 单个任务超过此值时，任务则会被销毁
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 CELERY_TIMEZONE = 'Asia/Shanghai'
 
@@ -49,13 +49,12 @@ INSTALLED_APPS = [
     'corsheaders',  # 跨域增加的
 ]
 
-
 # 添加中间件
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware', #增加的
+    'corsheaders.middleware.CorsMiddleware',  # 增加的
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
