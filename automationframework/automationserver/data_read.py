@@ -5,10 +5,17 @@ import pymysql
 
 
 class DataRead:
+
+    # 获取Excel工作簿名称
+    def get_excel_sheet_name(self, file_name):
+        excel_data = xlrd.open_workbook(file_name)
+        return excel_data.sheet_names()
+
     # 检查测试用例文件是否存在
     def check_case_file(self, file_name):
-        #file_path = os.getcwd() + '/automationtestcase/' + str(file_name)  # 本地开启
-        file_path = os.getcwd() + '/automationserver/automationtestcase/' + str(file_name) #djngo服务开启
+        # file_path = os.getcwd() + '/automationtestcase/' + str(file_name)  # 本地开启
+        # file_path = os.getcwd() + '/automationserver/automationtestcase/' + str(file_name) #djngo服务开启
+        file_path = os.getcwd() + '/static/automationtestcase/' + str(file_name)  # djngo服务开启
         if os.path.exists(file_path):  # 判断是否存在该测试用例文件
             return True
         else:
@@ -21,14 +28,14 @@ class DataRead:
         elif run_case_type == 'interface':
             return ['interfacecase']
         elif run_case_type == 'web':
-            return ['browserinfo', 'browseefuncase']
+            return ['browserinfo', 'browserfuncase']
         else:
             pass
 
     # 读取Excel数据
     def read_case_file(self, file_name, sheel_name):
-        #case_file_path = os.getcwd() + '/automationtestcase/' + str(file_name)  # 测试环境地址
-        case_file_path = os.getcwd() + '/automationserver/automationtestcase/' + str(file_name)  # Djngo环境地址
+        # case_file_path = os.getcwd() + '/automationtestcase/' + str(file_name)  # 测试环境地址
+        case_file_path = os.getcwd() + '/static/automationtestcase/' + str(file_name)  # Djngo环境地址
         open_excel_case = xlrd.open_workbook(case_file_path)  # 打开Excel 文件
         case_sheel = open_excel_case.sheet_by_name(sheel_name)  # 读取工作簿
         case_nows = case_sheel.nrows  # 读取Excel总行数
