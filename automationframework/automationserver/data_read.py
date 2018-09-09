@@ -8,6 +8,7 @@ class DataRead:
 
     # 获取Excel工作簿名称
     def get_excel_sheet_name(self, file_name):
+        print(file_name)
         excel_data = xlrd.open_workbook(file_name)
         return excel_data.sheet_names()
 

@@ -10,6 +10,7 @@ urlpatterns = [
                   url(r'^connectdevices', views.connect_devices),  # 连接设备
                   url(r'^disconnectdevice', views.disconnection_devices),  # 断开设备
                   url(r'^runcase', views.run_automation_file),  # 执行自动化用例接口
-                  url(r'^getcasefile', views.get_case_file)  # 获取用例文件
+                  url(r'^getcasefile', views.get_case_file),  # 获取用例文件
+                  url(r'^uploadcase', views.upload_case_file)  # 上传用例文件
                   # url(r'^testone', views.testone)
               ] + static(settings.STATIC_URL, docment_root=settings.STATIC_ROOT)
