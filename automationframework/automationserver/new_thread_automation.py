@@ -59,6 +59,7 @@ def run_automation_procedure(file_name, run_case_type, devices_id):
         device_count, device_list, appium_port_list, appium_bootstrap_port_list = run_app_automation.RunAppAutomation().get_device(
             devices_id)  # 获取设备数、设备名称、appium、appium
         # bootstrap端口号
+        default_input_method_list = run_app_automation.RunAppAutomation().gain_input_method(device_list)  # 获取所有设备的默认输入法
         device_list.insert(0, 'run_appium')  # 在列表的始端增加一个字符串 用来判断是否启动appium
         appium_port_list.insert(0, 'run_appium')
 
@@ -81,6 +82,7 @@ def run_automation_procedure(file_name, run_case_type, devices_id):
             print("完成所有自动化程序")
         else:
             print("未获取到任何设备,不执行自动化程序")
+        run_app_automation.RunAppAutomation().reset_devices_input_method(default_input_method_list, device_list)  # 重置所有设备的输入法
     except:
         print('执行自动化程序异常。')
 

@@ -6,13 +6,30 @@ import threading
 import subprocess
 import time
 import getpass
-# from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
+#from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
 from . import data_read  # 启动django服务需要开启
 from appium import webdriver
 from appium.webdriver.common.touch_action import TouchAction
 
 
 class RunAppAutomation:
+
+    # 获取默认输入法
+    def gain_input_method(self, devices_list):
+        input_method_list = [];
+        for devices in devices_list:
+            input_method = os.popen("adb -s %s shell settings get secure default_input_method" % devices).read().strip('\n')
+            input_method_list.append(input_method)
+        return input_method_list
+
+    # 初始化所有设备输入法
+    def reset_devices_input_method(self, default_input_method_list, devices_list):
+        for m, n in enumerate(devices_list):  # 删除添加的run_appium项目
+            if n == 'run_appium':
+                devices_list.pop(m)
+        for devices, devices_index in enumerate(devices_list):
+            os.popen('adb -s %s shell ime set %s' % (devices_list[devices], default_input_method_list[devices]))
+
     # 获取本地设备信息
     def get_device(self, devices_id):
         devices_list = []  # 存放设备列表
@@ -602,8 +619,9 @@ class RunAppAutomation:
 
 
 if __name__ == "__main__":
-    RunAppAutomation().get_device()
+    # RunAppAutomation().get_device()
     # device_count = 2
     # appium_port = [4586, 7892]
     # appium_bootstrap_port = [5645, 7541]
     # RunAppAutomation().launch_appium(device_count, appium_port, appium_bootstrap_port)
+    RunAppAutomation().reset_devices_input_method(['io.appium.android.ime/.UnicodeIME'], ['run_appium', '88MFBMA2UPUP'])
