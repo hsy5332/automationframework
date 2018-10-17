@@ -14,7 +14,7 @@ from appium.webdriver.common.touch_action import TouchAction
 
 class RunAppAutomation:
 
-    # 获取默认输入法
+    # 获取安卓设备默认输入法
     def gain_input_method(self, devices_list):
         input_method_list = [];
         for devices in devices_list:
@@ -22,7 +22,7 @@ class RunAppAutomation:
             input_method_list.append(input_method)
         return input_method_list
 
-    # 初始化所有设备输入法
+    # 初始化所有安卓设备输入法
     def reset_devices_input_method(self, default_input_method_list, devices_list):
         for m, n in enumerate(devices_list):  # 删除添加的run_appium项目
             if n == 'run_appium':
