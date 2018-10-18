@@ -6,7 +6,7 @@ import threading
 import subprocess
 import time
 import getpass
-#from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
+# from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
 from . import data_read  # 启动django服务需要开启
 from appium import webdriver
 from appium.webdriver.common.touch_action import TouchAction
@@ -230,6 +230,10 @@ class RunAppAutomation:
                     case_report = RunAppAutomation().operate_check_element(operate_type, element_attribute,
                                                                            appium_driver, case_id)
                     print(case_report)
+                elif '切换' in operate_type:
+                    case_report = RunAppAutomation().change_system_webview(appium_driver, case_id, parameter)
+                    print(case_report)
+
                 elif 'if' in operate_type:
                     case_report = RunAppAutomation().operate_check_element(operate_type, element_attribute,
                                                                            appium_driver, case_id)
@@ -284,12 +288,13 @@ class RunAppAutomation:
             app_package = configure_sheel.row_values(i)[0]  # 获取app 包名
             app_activity = configure_sheel.row_values(i)[1]  # 获取启动的activity
             app_path = configure_sheel.row_values(i)[2]  # 获取apk的路径
+            webview_path = configure_sheel.row_values(i)[3]  # 获取当前系统的webveiw路径
 
         platform_version = RunAppAutomation().get_device_android_version(device_id)  # 获取当前设备的Android系统版本
         connect_appium_device_config = RunAppAutomation().original_device_info(device_id, 'Android',
                                                                                platform_version,
                                                                                app_package, app_activity,
-                                                                               app_path)  # 初始化appium 连接设备信息
+                                                                               app_path, webview_path)  # 初始化appium 连接设备信息
 
         try:
             driver = webdriver.Remote('http://localhost:%s/wd/hub' % appium_port,
@@ -345,7 +350,7 @@ class RunAppAutomation:
         driver.quit()  # 退出appium
 
     # 设备连接Appium 配置文件
-    def original_device_info(self, udid, platform_name, platform_version, app_package, app_activity, app_path):
+    def original_device_info(self, udid, platform_name, platform_version, app_package, app_activity, app_path, webview_path):
         device_info = {
             'deviceName': udid,
             'platformName': platform_name,
@@ -355,6 +360,7 @@ class RunAppAutomation:
             'udid': udid,
             'unicodeKeyboard': "True",
             'resetKeyboard': "True",
+            'chromedriverExecutableDir': webview_path
         }
         if app_path != '':
             device_info['app'] = app_path
@@ -614,6 +620,19 @@ class RunAppAutomation:
                 case_report = "用例编号:%s,执行不通过。" % (case_id)
                 return case_report
         else:
+            case_report = "用例编号:%s,执行不通过，该用例的元素属性或参数可能有问题，请检查该用例。" % (case_id)
+            return case_report
+
+    def change_system_webview(self, driver, case_id, element):
+        print(driver.current_context)
+        print(driver, case_id, element)
+        try:
+            driver.switch_to.context(element)
+            print('切换WebView成功')
+            print(driver.current_context)
+            case_report = "用例编号:%s,执行不通过。" % (case_id)
+            return case_report
+        except:
             case_report = "用例编号:%s,执行不通过，该用例的元素属性或参数可能有问题，请检查该用例。" % (case_id)
             return case_report
 
