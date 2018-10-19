@@ -380,7 +380,8 @@ class RunAppAutomation:
                 return casere_port
         elif operate_type == "点击_xpath":
             try:
-                driver.find_element_by_xpath(element).click()  # 点击xpath
+                xpath = "//*[@id=\"root\"]/div/div[2]/div/a/div[2]/p[1]"
+                driver.find_element_by_xpath(xpath).click()  # 点击xpath
                 casere_port = "用例编号:%s,执行通过。" % (case_id)
                 return casere_port
             except:
@@ -623,17 +624,14 @@ class RunAppAutomation:
             case_report = "用例编号:%s,执行不通过，该用例的元素属性或参数可能有问题，请检查该用例。" % (case_id)
             return case_report
 
+    # 切换WebView
     def change_system_webview(self, driver, case_id, element):
-        print(driver.current_context)
-        print(driver, case_id, element)
         try:
             driver.switch_to.context(element)
-            print('切换WebView成功')
-            print(driver.current_context)
-            case_report = "用例编号:%s,执行不通过。" % (case_id)
+            case_report = "用例编号:%s,执行通过。" % (case_id)
             return case_report
         except:
-            case_report = "用例编号:%s,执行不通过，该用例的元素属性或参数可能有问题，请检查该用例。" % (case_id)
+            case_report = "用例编号:%s,执行不通过。" % (case_id)
             return case_report
 
 
