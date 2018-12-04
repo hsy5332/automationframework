@@ -6,6 +6,8 @@ import threading
 import subprocess
 import time
 import getpass
+import pymysql
+import MySQLdb
 # from automationframework.automationserver import data_read  # 单独此文件需要开启 windows
 from . import data_read  # 启动django服务需要开启
 from appium import webdriver
@@ -282,72 +284,95 @@ class RunAppAutomation:
     # 执行app自动化用例
     def run_app_automation_case(self, file_name, configure_sheel_name, run_sheel_name, device_id, appium_port):
         # filename 用例名称 configure_sheel_name 配置表格 run_sheel_name 执行用例表格 device_id 设备id
+        case_amount, pass_case_count, not_run_case = 0, 0, 0  # 初始化case_amount, pass_case_count, not_run_case 如果没有获取到则返回0
+        is_execute_configure = '';  # 默认空字符串
         configure_case_rows, configure_case_column, configure_sheel = data_read.DataRead().read_case_file(file_name,
                                                                                                           configure_sheel_name)
         for i in range(1, configure_case_rows):
-            app_package = configure_sheel.row_values(i)[0]  # 获取app 包名
-            app_activity = configure_sheel.row_values(i)[1]  # 获取启动的activity
-            app_path = configure_sheel.row_values(i)[2]  # 获取apk的路径
-            webview_path = configure_sheel.row_values(i)[3]  # 获取当前系统的webveiw路径
-
+            is_execute_configure = configure_sheel.row_values(i)[4]  # 获取当前配置是否执行
+            if len(is_execute_configure) > 0 and '是' in is_execute_configure:
+                app_package = configure_sheel.row_values(i)[0]  # 获取app 包名
+                app_activity = configure_sheel.row_values(i)[1]  # 获取启动的activity
+                app_path = configure_sheel.row_values(i)[2]  # 获取apk的路径
+                webview_path = configure_sheel.row_values(i)[3]  # 获取当前系统的webveiw路径
+                break  # 只要获取到一个就执行该配置
         platform_version = RunAppAutomation().get_device_android_version(device_id)  # 获取当前设备的Android系统版本
-        connect_appium_device_config = RunAppAutomation().original_device_info(device_id, 'Android',
-                                                                               platform_version,
-                                                                               app_package, app_activity,
-                                                                               app_path, webview_path)  # 初始化appium 连接设备信息
+        if len(is_execute_configure) > 0 and '是' in is_execute_configure:
+            connect_appium_device_config = RunAppAutomation().original_device_info(device_id, 'Android',
+                                                                                   platform_version,
+                                                                                   app_package, app_activity,
+                                                                                   app_path, webview_path)  # 初始化appium 连接设备信息
 
-        try:
-            driver = webdriver.Remote('http://localhost:%s/wd/hub' % appium_port,
-                                      connect_appium_device_config)  # 连接appium
-            driver.implicitly_wait(20)  # 在未获取到元素时 等待 10 秒
-            case_amount, pass_case_count, not_run_case, case_report_list = RunAppAutomation().read_case_operate_type(
-                file_name,
-                run_sheel_name,
-                driver)  # 读取用例操作类型 并执行
-            # 获取总用例数、执行用过的用例数、用例执行结果的列表
             try:
-                mysql_cursor, connect_mysql = data_read.DataRead().save_database()  # 获取数据库游标 游标执行sql,以及连接的变量用于关闭数据连接
-                if len(case_report_list) > 0:
-                    add_device_info_count = 0;  # case report 加入设备信息计数器
-                    while add_device_info_count < len(case_report_list):
-                        case_report_list[add_device_info_count].update(
-                            {'devicesinfos': "设备名：" + str(device_id) + "," + "系统版本信息：" + 'Android' + str(
-                                platform_version)}),
-                        case_report_list[add_device_info_count].update({'appiumport': appium_port}),
-                        case_report_list[add_device_info_count].update({'devicesexecute': 'Yes'})
-                        add_device_info_count += 1;
-                    execute_sql_count = 0;  # 执行sql数据计数器
-                    while execute_sql_count < len(case_report_list):
-                        execute_sql = "insert into `automationquery_automation_function_app`  (`devicesinfos`,`appiumport`,`devicesexecute`,`operatetype`," \
-                                      "`element`,`parameter`,`rundescribe`,`caseexecute`,`runcasetime`,`caseid`,`eventid`,`casereport`,`createdtime`," \
-                                      "`updatetime`)VALUES('%s','%s','%s','%s',\"%s\",'%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
-                                          case_report_list[execute_sql_count].get('devicesinfos'),
-                                          case_report_list[execute_sql_count].get('appiumport'),
-                                          case_report_list[execute_sql_count].get('devicesexecute'),
-                                          case_report_list[execute_sql_count].get('operatetype'),
-                                          case_report_list[execute_sql_count].get('element'),
-                                          case_report_list[execute_sql_count].get('parameter'),
-                                          case_report_list[execute_sql_count].get('rundescribe'),
-                                          case_report_list[execute_sql_count].get('caseexecute'),
-                                          case_report_list[execute_sql_count].get('runcasetime'),
-                                          case_report_list[execute_sql_count].get('caseid'),
-                                          case_report_list[execute_sql_count].get('eventid'),
-                                          case_report_list[execute_sql_count].get('casereport'),
-                                          str(case_report_list[execute_sql_count].get('createdtime')),
-                                          str(case_report_list[execute_sql_count].get('updatetime')),
-                                      )
-                        mysql_cursor.execute(execute_sql)
-                        execute_sql_count += 1;
-                    connect_mysql.commit()  # 提交数据
-                    connect_mysql.close()  # 关闭数据库连接
-                else:
-                    pass
+                driver = webdriver.Remote('http://localhost:%s/wd/hub' % appium_port,
+                                          connect_appium_device_config)  # 连接appium
+                driver.implicitly_wait(20)  # 在未获取到元素时 等待 10 秒
+                case_amount, pass_case_count, not_run_case, case_report_list = RunAppAutomation().read_case_operate_type(
+                    file_name,
+                    run_sheel_name,
+                    driver)  # 读取用例操作类型 并执行
+                # 获取总用例数、执行用过的用例数、用例执行结果的列表
+                try:
+                    mysql_cursor, connect_mysql = data_read.DataRead().save_database()  # 获取数据库游标 游标执行sql,以及连接的变量用于关闭数据连接
+                    if len(case_report_list) > 0:
+                        add_device_info_count = 0;  # case report 加入设备信息计数器
+                        while add_device_info_count < len(case_report_list):
+                            case_report_list[add_device_info_count].update(
+                                {'devicesinfos': "设备名：" + str(device_id) + "," + "系统版本信息：" + 'Android' + str(
+                                    platform_version)}),
+                            case_report_list[add_device_info_count].update({'appiumport': appium_port}),
+                            case_report_list[add_device_info_count].update({'devicesexecute': 'Yes'})
+                            add_device_info_count += 1;
+                        execute_sql_count = 0;  # 执行sql数据计数器
+                        while execute_sql_count < len(case_report_list):
+                            devicesinfos = str(case_report_list[execute_sql_count].get('devicesinfos'))
+                            appiumport = str(case_report_list[execute_sql_count].get('appiumport'))
+                            devicesexecute = str(case_report_list[execute_sql_count].get('devicesexecute'))
+                            operatetype = str(case_report_list[execute_sql_count].get('operatetype'))
+                            element = str(case_report_list[execute_sql_count].get('element'))
+                            parameter = str(case_report_list[execute_sql_count].get('parameter'))
+                            rundescribe = str(case_report_list[execute_sql_count].get('rundescribe'))
+                            caseexecute = str(case_report_list[execute_sql_count].get('caseexecute'))
+                            runcasetime = str(case_report_list[execute_sql_count].get('runcasetime'))
+                            caseid = str(case_report_list[execute_sql_count].get('caseid'))
+                            eventid = str(case_report_list[execute_sql_count].get('eventid'))
+                            casereport = str(case_report_list[execute_sql_count].get('casereport'))
+                            createdtime = str(case_report_list[execute_sql_count].get('createdtime'))
+                            updatetime = str(case_report_list[execute_sql_count].get('updatetime'))
+                            if '"' in element:
+                                element = pymysql.escape_string(element)
+                            execute_sql = "insert into `automationquery_automation_function_app`  (`devicesinfos`,`appiumport`,`devicesexecute`,`operatetype`," \
+                                          "`element`,`parameter`,`rundescribe`,`caseexecute`,`runcasetime`,`caseid`,`eventid`,`casereport`,`createdtime`," \
+                                          "`updatetime`)VALUES('%s','%s','%s','%s',\"%s\",'%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
+                                              devicesinfos,
+                                              appiumport,
+                                              devicesexecute,
+                                              operatetype,
+                                              element,
+                                              parameter,
+                                              rundescribe,
+                                              caseexecute,
+                                              runcasetime,
+                                              caseid,
+                                              eventid,
+                                              casereport,
+                                              createdtime,
+                                              updatetime,
+                                          )
+                            mysql_cursor.execute(execute_sql)
+                            execute_sql_count += 1;
+                        connect_mysql.commit()  # 提交数据
+                        connect_mysql.close()  # 关闭数据库连接
+                    else:
+                        pass
+                except:
+                    print("保存数据失败。")
             except:
-                print("保存数据失败。")
-            return case_amount, pass_case_count, not_run_case  # 返回总用例数、执行用过的用例数 用于发送邮件的统计
-        except:
-            print('连接Appium失败,连接设备号为: %s 端口号为: %s ' % (device_id, appium_port))
-        driver.quit()  # 退出appium
+                print('连接Appium失败,连接设备号为: %s 端口号为: %s ' % (device_id, appium_port))
+            driver.quit()  # 退出appium
+        else:
+            print('app 配置信息未获取到,请检查Excel appdeviceinfo中\'是否启用\'项。')
+        return case_amount, pass_case_count, not_run_case  # 返回总用例数、执行用过的用例数 用于发送邮件的统计
 
     # 设备连接Appium 配置文件
     def original_device_info(self, udid, platform_name, platform_version, app_package, app_activity, app_path, webview_path):
@@ -363,8 +388,10 @@ class RunAppAutomation:
         }
         if webview_path != '':
             device_info['chromedriverExecutableDir'] = webview_path
-        if app_path != '':
+        if app_path != '' and os.path.exists(app_path):  # os.path.exists(app_path) 检测文件是否存在 存在返回true
             device_info['app'] = app_path
+        else:
+            print('Excel 中 appdeviceinfo apk路径无法找到对应的apk,正在使用设备中的apk。')
         return device_info
 
     # 点击事件

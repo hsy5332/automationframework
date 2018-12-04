@@ -1,5 +1,6 @@
 # coding : utf-8
 import time
+import pymysql
 # from automationframework.automationserver import data_read, send_report  # 单独此文件需要开启 windows
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -133,12 +134,15 @@ class RunWebAutomation:
                         if len(case_report_list) > 0:
                             execute_sql_count = 0;  # 执行sql数据计数器
                             while execute_sql_count < len(case_report_list):
+                                element =  str(case_report_list[execute_sql_count].get('element'))
+                                if '"' in element:
+                                    element = pymysql.escape_string(element)
                                 execute_sql = "insert into automationquery_automation_function_web  (`browsername`,`browserconfigure`,`browserstatus`,`operatetype`,`element`,`parameter`,`testurl`,`rundescribe`,`caseexecute`,`runcasetime`,`caseid`,`eventid`,`casereport`,`createdtime`,`updatetime`)VALUES('%s','%s','%s','%s',\"%s\",'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
                                     case_report_list[execute_sql_count].get('browsername'),
                                     case_report_list[execute_sql_count].get('browserconfigure'),
                                     case_report_list[execute_sql_count].get('browserstatus'),
                                     case_report_list[execute_sql_count].get('operatetype'),
-                                    case_report_list[execute_sql_count].get('element'),
+                                    element,
                                     case_report_list[execute_sql_count].get('parameter'),
                                     case_report_list[execute_sql_count].get('testurl'),
                                     case_report_list[execute_sql_count].get('rundescribe'),

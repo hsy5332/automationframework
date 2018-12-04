@@ -24,10 +24,16 @@ class SendReport(object):
         if cc_email == "" or "@" not in cc_email:
             ccemail = ""
         receivers = to_email.split(',') + cc_email.split(',')  # 收件人+抄送人
-        message = MIMEText(
-            "Dear all: \n           测试用例全部执行完毕，执行用例时间为：%s，共执行%s个用例，通过%s个用例，未执行%s个用例。" % (runtime, case_amount, pass_case_count, not_run_case),
-            'plain',
-            'utf-8')
+        if case_amount != 0:
+            message = MIMEText(
+                "Dear all: \n           测试用例全部执行完毕，执行用例时间为：%s，共执行%s个用例，通过%s个用例，未执行%s个用例。" % (runtime, case_amount, pass_case_count, not_run_case),
+                'plain',
+                'utf-8')
+        else:
+            message = MIMEText(
+                "Dear all: \n           自动化程序执行失败，执行用例时间为：%s。" % (runtime),
+                'plain',
+                'utf-8')
         message['From'] = Header("automationauthor", 'utf-8')  # 收件人
         message['To'] = Header(to_email)  # 收件人的地址栏显示
         message['Cc'] = cc_email
