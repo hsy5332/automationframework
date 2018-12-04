@@ -360,12 +360,11 @@ class RunAppAutomation:
             'udid': udid,
             'unicodeKeyboard': "True",
             'resetKeyboard': "True",
-            'chromedriverExecutableDir': webview_path
         }
+        if webview_path != '':
+            device_info['chromedriverExecutableDir'] = webview_path
         if app_path != '':
             device_info['app'] = app_path
-        else:
-            pass
         return device_info
 
     # 点击事件
