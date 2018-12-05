@@ -106,7 +106,7 @@ class RunAppAutomation:
             appium_cmd = subprocess.Popen(
                 'appium -p %s -bp %s >static/appiumlog/log_%s_%s_%s.log' % (
                     self.appium_port, self.appium_bootstrap_port, self.appium_port, self.appium_bootstrap_port,
-                    int(time.time())),
+                    time.strftime("%Y_%m_%d_%H:%M:%S", time.localtime(time.time()))),
                 shell=True)
 
             # 调试开启
