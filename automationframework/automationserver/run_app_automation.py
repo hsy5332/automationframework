@@ -64,6 +64,30 @@ class RunAppAutomation:
         except:
             return '4.4.2'
 
+    # 检查设备是否有包名
+    def check_device_packages(self, deivce_name, packages_name):
+        try:
+            check_result = os.popen('adb -s %s shell pm list packages | grep \'%s\'' % (deivce_name, packages_name)).read()
+            if check_result:
+                return True
+            else:
+                return False
+        except:
+            print('传递的设备名或packages_name出现错误,请检查设备名或packages_name。')
+            return False
+
+    # 清空app数据
+    def clear_app_data(self, deivce_name, packages_name):
+        try:
+            clear_data_result = os.popen('adb -s %s shell pm clear \'%s\'' % (deivce_name, packages_name)).read()
+            if 'Success' in clear_data_result:
+                return True
+            else:
+                return False
+        except:
+            print('传递的设备名或packages_name出现错误,请检查设备名或packages_name。')
+            return False
+
     # 检查端口号是否存在
     def check_appium_port(self, appium_port, appium_bootstrap_port):
         if os.name == 'nt':
@@ -289,15 +313,20 @@ class RunAppAutomation:
         configure_case_rows, configure_case_column, configure_sheel = data_read.DataRead().read_case_file(file_name,
                                                                                                           configure_sheel_name)
         for i in range(1, configure_case_rows):
-            is_execute_configure = configure_sheel.row_values(i)[4]  # 获取当前配置是否执行
+            is_execute_configure = configure_sheel.row_values(i)[5]  # 获取当前配置是否执行
             if len(is_execute_configure) > 0 and '是' in is_execute_configure:
                 app_package = configure_sheel.row_values(i)[0]  # 获取app 包名
                 app_activity = configure_sheel.row_values(i)[1]  # 获取启动的activity
                 app_path = configure_sheel.row_values(i)[2]  # 获取apk的路径
                 webview_path = configure_sheel.row_values(i)[3]  # 获取当前系统的webveiw路径
+                check_is_clear_data = configure_sheel.row_values(i)[4]  # 检查是否清除app数据
                 break  # 只要获取到一个就执行该配置
         platform_version = RunAppAutomation().get_device_android_version(device_id)  # 获取当前设备的Android系统版本
-        if len(is_execute_configure) > 0 and '是' in is_execute_configure:
+
+        if len(is_execute_configure) > 0 and '是' in is_execute_configure and os.path.exists(app_path) != True:  # os.path.exists 检查安装包是否存在,存在返回TRUE,这里要取FALSE
+            if len(check_is_clear_data) > 0 and '是' in check_is_clear_data:  # 检查是否需要清除设备app信息,如果是则清除
+                if RunAppAutomation().check_device_packages(device_id, app_package):
+                    RunAppAutomation().clear_app_data(device_id, app_package)
             connect_appium_device_config = RunAppAutomation().original_device_info(device_id, 'Android',
                                                                                    platform_version,
                                                                                    app_package, app_activity,
@@ -667,4 +696,5 @@ if __name__ == "__main__":
     # appium_port = [4586, 7892]
     # appium_bootstrap_port = [5645, 7541]
     # RunAppAutomation().launch_appium(device_count, appium_port, appium_bootstrap_port)
-    RunAppAutomation().reset_devices_input_method(['io.appium.android.ime/.UnicodeIME'], ['run_appium', '88MFBMA2UPUP'])
+    #RunAppAutomation().reset_devices_input_method(['io.appium.android.ime/.UnicodeIME'], ['run_appium', '88MFBMA2UPUP'])
+    RunAppAutomation().clear_app_data('4acfb8b4','com.ushaqi.zhuishushenqi')
