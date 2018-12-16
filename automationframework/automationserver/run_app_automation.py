@@ -228,7 +228,7 @@ class RunAppAutomation:
             if 'Y' in case_execute or 'y' in case_execute:
                 if operate_type == '等待时间':
                     try:
-                        time.sleep(int(element_attribute))  # 先读取用例中的time，进行转化若无法转化则取默认值3
+                        time.sleep(int(parameter))  # 先读取用例中的time，进行转化若无法转化则取默认值3
 
                     except:
                         time.sleep(3)
@@ -256,8 +256,12 @@ class RunAppAutomation:
                     case_report = RunAppAutomation().operate_check_element(operate_type, element_attribute,
                                                                            appium_driver, case_id)
                     print(case_report)
-                elif '切换' in operate_type:
+                elif '切换' == operate_type:
                     case_report = RunAppAutomation().change_system_webview(appium_driver, case_id, parameter)
+                    print(case_report)
+
+                elif '快速' in operate_type:
+                    case_report = RunAppAutomation().fast_change_system_webview(appium_driver, case_id, parameter)
                     print(case_report)
 
                 elif 'if' in operate_type:
@@ -679,10 +683,30 @@ class RunAppAutomation:
             case_report = "用例编号:%s,执行不通过，该用例的元素属性或参数可能有问题，请检查该用例。" % (case_id)
             return case_report
 
-    # 切换WebView
+    # 切换WebView 指定WebView进行切换
     def change_system_webview(self, driver, case_id, element):
         try:
             driver.switch_to.context(element)
+            case_report = "用例编号:%s,执行通过。" % (case_id)
+            return case_report
+        except:
+            case_report = "用例编号:%s,执行不通过。" % (case_id)
+            return case_report
+
+    # 快速切换WebView 可能切换的WebView不准
+    def fast_change_system_webview(self, driver, case_id, element):
+        try:
+            current_webview = driver.contexts
+            for webview in current_webview:
+                if 'NATIVE' in webview or 'NATIVE_APP' in webview:
+                    native_webview = webview
+                else:
+                    h5_webview = webview
+            if '原生' in element or 'native' in element or 'NATVIE' in element:
+                driver.switch_to.context(native_webview)
+            else:
+                driver.switch_to.context(h5_webview)
+
             case_report = "用例编号:%s,执行通过。" % (case_id)
             return case_report
         except:
@@ -696,5 +720,5 @@ if __name__ == "__main__":
     # appium_port = [4586, 7892]
     # appium_bootstrap_port = [5645, 7541]
     # RunAppAutomation().launch_appium(device_count, appium_port, appium_bootstrap_port)
-    #RunAppAutomation().reset_devices_input_method(['io.appium.android.ime/.UnicodeIME'], ['run_appium', '88MFBMA2UPUP'])
-    RunAppAutomation().clear_app_data('4acfb8b4','com.ushaqi.zhuishushenqi')
+    # RunAppAutomation().reset_devices_input_method(['io.appium.android.ime/.UnicodeIME'], ['run_appium', '88MFBMA2UPUP'])
+    RunAppAutomation().clear_app_data('4acfb8b4', 'com.ushaqi.zhuishushenqi')
