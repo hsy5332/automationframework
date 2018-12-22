@@ -127,6 +127,7 @@ class RunAppAutomation:
 
         def run(self):
             # Django 服务开启
+            print('启动appium服务,启动时间为: %s, 端口号为: %s' % (self.appium_port, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))))
             appium_cmd = subprocess.Popen(
                 'appium -p %s -bp %s >static/appiumlog/log_%s_%s_%s.log' % (
                     self.appium_port, self.appium_bootstrap_port, self.appium_port, self.appium_bootstrap_port,
@@ -222,6 +223,11 @@ class RunAppAutomation:
             operate_type = run_sheel.row_values(run_case_now_count)[1]  # 操作类型
             element_attribute = run_sheel.row_values(run_case_now_count)[2]  # 元素属性
             parameter = run_sheel.row_values(run_case_now_count)[3]  # 参数
+            try:
+                if (int(parameter) == parameter):
+                    parameter = str(int(parameter))
+            except:
+                pass
             case_describe = run_sheel.row_values(run_case_now_count)[5]  # 步骤描述
             case_execute = run_sheel.row_values(run_case_now_count)[6]  # 用例执行状态
             stat_case_time = time.time()  # 开始执行用例时间
@@ -229,7 +235,6 @@ class RunAppAutomation:
                 if operate_type == '等待时间':
                     try:
                         time.sleep(int(parameter))  # 先读取用例中的time，进行转化若无法转化则取默认值3
-
                     except:
                         time.sleep(3)
                     case_report = '用例编号:%s,执行通过。' % case_id
@@ -439,8 +444,7 @@ class RunAppAutomation:
                 return casere_port
         elif operate_type == "点击_xpath":
             try:
-                xpath = "//*[@id=\"root\"]/div/div[2]/div/a/div[2]/p[1]"
-                driver.find_element_by_xpath(xpath).click()  # 点击xpath
+                driver.find_element_by_xpath(element).click()  # 点击xpath
                 casere_port = "用例编号:%s,执行通过。" % (case_id)
                 return casere_port
             except:
@@ -697,6 +701,7 @@ class RunAppAutomation:
     def fast_change_system_webview(self, driver, case_id, element):
         try:
             current_webview = driver.contexts
+            print('当前页面的WebView: %' % current_webview)
             for webview in current_webview:
                 if 'NATIVE' in webview or 'NATIVE_APP' in webview:
                     native_webview = webview
