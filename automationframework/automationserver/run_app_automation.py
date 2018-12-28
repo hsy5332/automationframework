@@ -336,6 +336,7 @@ class RunAppAutomation:
             if len(check_is_clear_data) > 0 and '是' in check_is_clear_data:  # 检查是否需要清除设备app信息,如果是则清除
                 if RunAppAutomation().check_device_packages(device_id, app_package):
                     RunAppAutomation().clear_app_data(device_id, app_package)
+                    time.sleep(3) # 在清除APP数据后，等待3秒再连接appium,防止出现问题
             connect_appium_device_config = RunAppAutomation().original_device_info(device_id, 'Android',
                                                                                    platform_version,
                                                                                    app_package, app_activity,
@@ -344,7 +345,11 @@ class RunAppAutomation:
             try:
                 driver = webdriver.Remote('http://localhost:%s/wd/hub' % appium_port,
                                           connect_appium_device_config)  # 连接appium
-                driver.implicitly_wait(20)  # 在未获取到元素时 等待 10 秒
+                driver.implicitly_wait(20)  # 在未获取到元素时 等待 20 秒
+                app_current_activity = driver.current_activity  # 获取当前主页面的activity
+                print('当前的activ：')
+                print(app_current_activity)
+                driver.wait_activity(app_current_activity, 30)  # 利用wait_activity方法进行等待
                 case_amount, pass_case_count, not_run_case, case_report_list = RunAppAutomation().read_case_operate_type(
                     file_name,
                     run_sheel_name,
