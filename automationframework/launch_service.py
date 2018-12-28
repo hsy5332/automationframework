@@ -60,7 +60,7 @@ class LaunchServer(threading.Thread):
 if __name__ == '__main__':
     print('启动脚本时间为 : %s' % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
     print('当前请求接口的token为 : %s' % (int(time.time()) + 86400))
-    run_type_list, run_thread_list = ['Django', 'celery', 'flower'], [];
+    run_type_list, run_thread_list = ['celery', 'flower', 'Django'], [];
     run_count = 0;
     while run_count < len(run_type_list):
         run_thread = LaunchServer(run_type_list[run_count])
@@ -68,6 +68,7 @@ if __name__ == '__main__':
         run_count += 1;
 
     for i in run_thread_list:
+        time.sleep(5)  # 每个线程间隔5秒启动一个服务
         i.start()
 
     for y in run_thread_list:
