@@ -30,8 +30,8 @@ class RunAppAutomation:
         for m, n in enumerate(devices_list):  # 删除添加的run_appium项目
             if n == 'run_appium':
                 devices_list.pop(m)
-        for devices, devices_index in enumerate(devices_list):
-            os.popen('adb -s %s shell ime set %s' % (devices_list[devices], default_input_method_list[devices]))
+        for devices_index, devices in enumerate(devices_list):
+            os.popen('adb -s %s shell ime set %s' % (devices_list[devices_index], default_input_method_list[devices_index]))
 
     # 获取本地设备信息
     def get_device(self, devices_id):
