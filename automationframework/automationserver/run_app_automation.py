@@ -12,6 +12,7 @@ import MySQLdb
 from . import data_read  # 启动django服务需要开启
 from appium import webdriver
 from appium.webdriver.common.touch_action import TouchAction
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 class RunAppAutomation:
@@ -347,9 +348,10 @@ class RunAppAutomation:
                                           connect_appium_device_config)  # 连接appium
                 driver.implicitly_wait(20)  # 在未获取到元素时 等待 20 秒
                 app_current_activity = driver.current_activity  # 获取当前主页面的activity
-                print('当前的activ：')
-                print(app_current_activity)
-                driver.wait_activity(app_current_activity, 30)  # 利用wait_activity方法进行等待
+                #print('当前的activ：')
+                #print(app_current_activity)
+                #driver.wait_activity(app_current_activity, 30)  # 利用wait_activity方法进行等待
+                WebDriverWait(driver, 20)
                 case_amount, pass_case_count, not_run_case, case_report_list = RunAppAutomation().read_case_operate_type(
                     file_name,
                     run_sheel_name,
@@ -606,6 +608,15 @@ class RunAppAutomation:
                     return case_report
             case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
             return case_report
+        elif operate_type == '查找_元素':
+            time.sleep(6) # 等待时间,让当前页面加载完成，再去查找元素
+            page_element = driver.page_source # 获取当前页面所有的元素 str类型
+            if element in page_element:
+                case_report = "用例编号:%s,执行通过。页面包含此元素。" % (case_id)
+                return case_report
+            else:
+                case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
+                return case_report
         elif operate_type == "if包含_id":
             try:
                 driver.find_element_by_id(element)
@@ -646,6 +657,15 @@ class RunAppAutomation:
                     return case_report
             case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
             return case_report
+        elif operate_type == 'if包含_元素':
+            time.sleep(6) # 等待时间,让当前页面加载完成，再去查找元素
+            page_element = driver.page_source # 获取当前页面所有的元素 str类型
+            if element in page_element:
+                case_report = "用例编号:%s,执行通过。页面包含此元素。" % (case_id)
+                return case_report
+            else:
+                case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
+                return case_report
         else:
             case_report = "用例编号:%s,执行不通过，该用例的元素属性可能有问题，请检查该用例。" % (case_id)
             return case_report
@@ -706,7 +726,7 @@ class RunAppAutomation:
     def fast_change_system_webview(self, driver, case_id, element):
         try:
             current_webview = driver.contexts
-            print('当前页面的WebView: %' % current_webview)
+            print('当前页面的WebView: %' % (current_webview))
             for webview in current_webview:
                 if 'NATIVE' in webview or 'NATIVE_APP' in webview:
                     native_webview = webview
