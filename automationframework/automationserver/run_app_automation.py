@@ -12,7 +12,6 @@ import MySQLdb
 from . import data_read  # 启动django服务需要开启
 from appium import webdriver
 from appium.webdriver.common.touch_action import TouchAction
-from selenium.webdriver.support.ui import WebDriverWait
 
 
 class RunAppAutomation:
@@ -337,7 +336,7 @@ class RunAppAutomation:
             if len(check_is_clear_data) > 0 and '是' in check_is_clear_data:  # 检查是否需要清除设备app信息,如果是则清除
                 if RunAppAutomation().check_device_packages(device_id, app_package):
                     RunAppAutomation().clear_app_data(device_id, app_package)
-                    time.sleep(3) # 在清除APP数据后，等待3秒再连接appium,防止出现问题
+                    time.sleep(3)  # 在清除APP数据后，等待3秒再连接appium,防止出现问题
             connect_appium_device_config = RunAppAutomation().original_device_info(device_id, 'Android',
                                                                                    platform_version,
                                                                                    app_package, app_activity,
@@ -604,8 +603,8 @@ class RunAppAutomation:
             case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
             return case_report
         elif operate_type == '查找_元素':
-            time.sleep(6) # 等待时间,让当前页面加载完成，再去查找元素
-            page_element = driver.page_source # 获取当前页面所有的元素 str类型
+            time.sleep(6)  # 等待时间,让当前页面加载完成，再去查找元素
+            page_element = driver.page_source  # 获取当前页面所有的元素 str类型
             if element in page_element:
                 case_report = "用例编号:%s,执行通过。页面包含此元素。" % (case_id)
                 return case_report
@@ -653,8 +652,8 @@ class RunAppAutomation:
             case_report = "用例编号:%s,执行不通过。页面不包含此元素。" % (case_id)
             return case_report
         elif operate_type == 'if包含_元素':
-            time.sleep(6) # 等待时间,让当前页面加载完成，再去查找元素
-            page_element = driver.page_source # 获取当前页面所有的元素 str类型
+            time.sleep(6)  # 等待时间,让当前页面加载完成，再去查找元素
+            page_element = driver.page_source  # 获取当前页面所有的元素 str类型
             if element in page_element:
                 case_report = "用例编号:%s,执行通过。页面包含此元素。" % (case_id)
                 return case_report
