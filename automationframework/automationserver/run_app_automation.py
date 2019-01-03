@@ -331,8 +331,8 @@ class RunAppAutomation:
                 check_is_clear_data = configure_sheel.row_values(i)[4]  # 检查是否清除app数据
                 break  # 只要获取到一个就执行该配置
         platform_version = RunAppAutomation().get_device_android_version(device_id)  # 获取当前设备的Android系统版本
-
-        if len(is_execute_configure) > 0 and '是' in is_execute_configure and os.path.exists(app_path) != True:  # os.path.exists 检查安装包是否存在,存在返回TRUE,这里要取FALSE
+   
+        if len(is_execute_configure) > 0 and '是' in is_execute_configure and os.path.exists(app_path):  # os.path.exists 检查安装包是否存在,存在返回TRUE,这里要取FALSE
             if len(check_is_clear_data) > 0 and '是' in check_is_clear_data:  # 检查是否需要清除设备app信息,如果是则清除
                 if RunAppAutomation().check_device_packages(device_id, app_package):
                     RunAppAutomation().clear_app_data(device_id, app_package)
