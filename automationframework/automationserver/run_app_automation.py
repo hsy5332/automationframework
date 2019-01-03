@@ -346,12 +346,7 @@ class RunAppAutomation:
             try:
                 driver = webdriver.Remote('http://localhost:%s/wd/hub' % appium_port,
                                           connect_appium_device_config)  # 连接appium
-                driver.implicitly_wait(20)  # 在未获取到元素时 等待 20 秒
-                app_current_activity = driver.current_activity  # 获取当前主页面的activity
-                #print('当前的activ：')
-                #print(app_current_activity)
-                #driver.wait_activity(app_current_activity, 30)  # 利用wait_activity方法进行等待
-                WebDriverWait(driver, 20)
+                driver.implicitly_wait(30)  # 在未获取到元素时 等待 30 秒
                 case_amount, pass_case_count, not_run_case, case_report_list = RunAppAutomation().read_case_operate_type(
                     file_name,
                     run_sheel_name,
